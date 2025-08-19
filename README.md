@@ -5,6 +5,7 @@ Repositório das atividades da disciplina Laboratório de Desenvolvimento de Apl
 ## Lab 1 — Servidor de Aplicação Tradicional
 
 ### O que foi desenvolvido
+
 - Estrutura de projeto em Node.js com Express
 - Configuração de banco de dados SQLite
 - Implementação de modelos de Usuário e Tarefa
