@@ -1,0 +1,12 @@
+{
+    "success": true,
+    "message": "Tarefa criada com sucesso",
+    "data": {
+        "id": "098fb18c-6864-4898-be71-0e3669a9e5b4",
+        "title": "Minha Tarefa",
+        "description": "Primeira tarefa criada",
+        "completed": false,
+        "priority": "high",
+        "userId": "c876a67e-940f-41e7-a3ee-09dccbc89fb0"
+    }
+}
