@@ -15,21 +15,24 @@
 
 ## Fundamentação Teórica
 
-Segundo Coulouris et al. (2012), "um sistema distribuído é aquele no qual os componentes de hardware ou software localizados em computadores em rede se comunicam e coordenam suas ações apenas por meio de passagem de mensagens" <sup>[1]</sup>.
+Segundo Coulouris et al. (2012), "um sistema distribuído é aquele no qual os componentes de hardware ou software localizados em computadores em rede se comunicam e coordenam suas ações apenas por meio de passagem de mensagens" [^1].
 
 A arquitetura cliente-servidor tradicional representa o modelo mais básico de sistema distribuído, onde:
+
 - **Cliente**: Solicita serviços e recursos
 - **Servidor**: Fornece serviços centralizados
-- **Comunicação**: HTTP Request-Reply (Tanenbaum & Van Steen, 2017) <sup>[2]</sup>
+- **Comunicação**: HTTP Request-Reply (Tanenbaum & Van Steen, 2017) [^2]
 
 ### Características da Arquitetura
 
 **Vantagens:**
+
 - Simplicidade de desenvolvimento e deploy
 - Controle centralizado de dados e estado
 - Consistência garantida (transações ACID)
 
 **Limitações:**
+
 - Ponto único de falha
 - Escalabilidade vertical limitada
 - Possível gargalo de performance
@@ -68,7 +71,7 @@ npm install --save-dev nodemon jest supertest
 
 ### 1.3 Estrutura de Diretórios
 
-```
+```text
 lab01-servidor-tradicional/
 ├── package.json
 ├── server.js                 # Servidor principal
@@ -814,6 +817,7 @@ curl -X GET http://localhost:3000/api/tasks \
 ### 9.1 Análise Arquitetural
 
 **Características Implementadas:**
+
 - ✅ Arquitetura monolítica centralizada
 - ✅ API REST com operações CRUD
 - ✅ Autenticação JWT stateless
@@ -821,11 +825,13 @@ curl -X GET http://localhost:3000/api/tasks \
 - ✅ Persistência com SQLite
 
 **Métricas de Performance Esperadas:**
+
 - Latência: ~30-50ms por requisição
 - Throughput: ~500-1000 req/sec
 - Memória: ~50-100MB
 
 **Limitações Identificadas:**
+
 - Escalabilidade limitada (vertical apenas)
 - Ponto único de falha
 - Estado centralizado
@@ -872,9 +878,7 @@ npm start
 
 ## Referências
 
-<sup>[1]</sup> COULOURIS, George; DOLLIMORE, Jean; KINDBERG, Tim; BLAIR, Gordon. **Distributed Systems: Concepts and Design**. 5th ed. Boston: Pearson, 2012.
-
-<sup>[2]</sup> TANENBAUM, Andrew S.; VAN STEEN, Maarten. **Distributed Systems: Principles and Paradigms**. 3rd ed. Boston: Pearson, 2017.
+[^1]: COULOURIS, George; DOLLIMORE, Jean; KINDBERG, Tim; BLAIR, Gordon. **Distributed Systems: Concepts and Design**. 5th ed. Boston: Pearson, 2012.
 
 ---
 
