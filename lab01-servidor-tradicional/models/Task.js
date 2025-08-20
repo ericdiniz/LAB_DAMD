@@ -6,6 +6,8 @@ class Task {
     this.completed = !!data.completed;
     this.priority = data.priority || 'medium';
     this.userId = data.userId;
+    this.category = data.category || '';
+    this.tags = data.tags || '';
     this.createdAt = data.createdAt;
   }
   validate() {

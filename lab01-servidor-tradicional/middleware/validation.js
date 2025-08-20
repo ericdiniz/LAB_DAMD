@@ -16,13 +16,21 @@ const schemas = {
     title: Joi.string().min(1).max(200).required(),
     description: Joi.string().max(1000).allow(''),
     priority: Joi.string().valid('low','medium','high','urgent').default('medium'),
-    completed: Joi.boolean().optional()
+    completed: Joi.boolean().optional(),
+    category: Joi.string().max(100).allow(''),
+    tags: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()).allow('')
   })
 };
 
 const validate = (schemaName) => (req, res, next) => {
   const { error, value } = schemas[schemaName].validate(req.body);
-  if (error) return res.status(400).json({ success: false, message: 'Dados inválidos', errors: error.details.map(d => d.message) });
+  if (error) {
+    return res.status(400).json({
+      success: false, message: 'Dados inválidos',
+      errors: error.details.map(d => d.message)
+    });
+  }
+  if (schemaName === 'task' && Array.isArray(value.tags)) value.tags = value.tags.join(',');
   req.body = value;
   next();
 };
