@@ -1,0 +1,15 @@
+Running 10s test @ http://localhost:3000/api/tasks?page=1&limit=10
+  4 threads and 500 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    45.37ms  102.70ms   1.98s    98.51%
+    Req/Sec     2.30k   644.89     4.14k    74.50%
+  Latency Distribution
+     50%   35.53ms
+     75%   42.33ms
+     90%   46.78ms
+     99%  463.49ms
+  91861 requests in 10.04s, 89.80MB read
+  Socket errors: connect 0, read 20, write 0, timeout 218
+  Non-2xx or 3xx responses: 91861
+Requests/sec:   9147.28
+Transfer/sec:      8.94MB

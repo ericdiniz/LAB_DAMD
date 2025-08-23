@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+OUT="testes-estresse/resultados"
+mkdir -p "$OUT"
+echo "[nping] TCP connect na porta 3000 (500 tentativas, 200/s)"
+nping -p 3000 127.0.0.1 --rate 200 --count 500 --tcp-connect \
+  | tee "$OUT/nping-tcp-3000.txt" >/dev/null
+echo "Veja 'Lost/Total' no final de $OUT/nping-tcp-3000.txt"

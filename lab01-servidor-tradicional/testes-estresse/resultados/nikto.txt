@@ -1,0 +1,16 @@
+- Nikto v2.5.0/
++ Target Host: localhost
++ Target Port: 3000
++ GET /: Uncommon header 'x-ratelimit-remaining' found, with contents: 0.
++ GET /: Uncommon header 'x-ratelimit-limit' found, with contents: 1000.
++ GET /: Uncommon header 'x-ratelimit-reset' found, with contents: 1755913522.
++ GET /: Uncommon header 'origin-agent-cluster' found, with contents: ?1.
++ GET .: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/: 
+- Nikto v2.5.0/
++ Target Host: localhost
++ Target Port: 3000
++ GET /: Uncommon header 'x-ratelimit-reset' found, with contents: 1755913830.
++ GET /: Uncommon header 'origin-agent-cluster' found, with contents: ?1.
++ GET /: Uncommon header 'x-ratelimit-limit' found, with contents: 1000.
++ GET /: Uncommon header 'x-ratelimit-remaining' found, with contents: 0.
++ GET .: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/: 

@@ -1,0 +1,15 @@
+{
+    "success": true,
+    "message": "Login realizado com sucesso",
+    "data": {
+        "user": {
+            "id": "fddfa876-1477-4554-a86a-837ea6ebf4c1",
+            "email": "stress1755912929@test.com",
+            "username": "stress1755912929",
+            "firstName": "Stress",
+            "lastName": "User",
+            "createdAt": "2025-08-23 01:35:30"
+        },
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImZkZGZhODc2LTE0NzctNDU1NC1hODZhLTgzN2VhNmViZjRjMSIsImVtYWlsIjoic3RyZXNzMTc1NTkxMjkyOUB0ZXN0LmNvbSIsInVzZXJuYW1lIjoic3RyZXNzMTc1NTkxMjkyOSIsImlhdCI6MTc1NTkxMjkzMCwiZXhwIjoxNzU1OTk5MzMwfQ.vSXB6Qb-lC03X21c6uj25WdojqVt56AVrn0Tl2oxMds"
+    }
+}
