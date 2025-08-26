@@ -1,0 +1,23 @@
+{
+  "name": "lab02-grpc-communication",
+  "version": "1.0.0",
+  "description": "Sistema de tarefas usando gRPC e Protocol Buffers",
+  "main": "src/server/server.js",
+  "scripts": {
+    "server": "node src/server/server.js",
+    "server:dev": "nodemon src/server/server.js",
+    "client": "node src/client/client.js",
+    "demo": "npm run client"
+  },
+  "keywords": ["grpc", "protobuf", "sistemas-distribuidos", "rpc"],
+  "author": "Aluno PUC Minas",
+  "license": "MIT",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.10.6",
+    "@grpc/proto-loader": "^0.7.13",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

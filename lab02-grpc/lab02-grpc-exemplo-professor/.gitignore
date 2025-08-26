@@ -1,0 +1,20 @@
+# Dependências
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Build/Output
+dist/
+build/
+coverage/
+
+# IDEs/Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Arquivos do sistema
+*.log
+*.tmp
+*.swp
