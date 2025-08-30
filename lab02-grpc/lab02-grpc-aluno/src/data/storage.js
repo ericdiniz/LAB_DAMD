@@ -6,7 +6,6 @@ class TaskStorage {
     this.subscribers = new Set();
   }
 
-  // Criar tarefa
   createTask(taskData) {
     const task = {
       id: uuidv4(),
@@ -22,12 +21,10 @@ class TaskStorage {
     return task;
   }
 
-  // Buscar tarefa por id
   getTask(id) {
     return this.tasks.get(id) || null;
   }
 
-  // Listar tarefas com filtros
   listTasks(userId, completed = null, priority = null) {
     return Array.from(this.tasks.values())
       .filter(t => t.user_id === userId)
@@ -36,7 +33,6 @@ class TaskStorage {
       .sort((a, b) => b.created_at - a.created_at);
   }
 
-  // Atualizar tarefa
   updateTask(id, updates) {
     const task = this.tasks.get(id);
     if (!task) return null;
@@ -53,7 +49,6 @@ class TaskStorage {
     return updated;
   }
 
-  // Deletar tarefa
   deleteTask(id) {
     const task = this.tasks.get(id);
     if (!task) return false;
@@ -62,7 +57,6 @@ class TaskStorage {
     return true;
   }
 
-  // Pub/Sub simples para o streaming do gRPC
   subscribe(fn) {
     this.subscribers.add(fn);
     return () => this.subscribers.delete(fn);
@@ -72,6 +66,19 @@ class TaskStorage {
     this.subscribers.forEach(fn => {
       try { fn({ action, task }); } catch {}
     });
+  }
+
+  // <<< adicionado: estatísticas >>>
+  getStats(userId) {
+    const tasks = this.listTasks(userId);
+    const completed = tasks.filter(t => t.completed).length;
+    const pending = tasks.length - completed;
+    return {
+      total: tasks.length,
+      completed,
+      pending,
+      completion_rate: tasks.length ? (completed / tasks.length * 100).toFixed(2) : 0
+    };
   }
 }
 
