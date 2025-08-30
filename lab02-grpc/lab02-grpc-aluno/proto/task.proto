@@ -19,9 +19,7 @@ message CreateTaskRequest {
   string user_id = 4;
 }
 
-message GetTaskRequest {
-  string id = 1;
-}
+message GetTaskRequest { string id = 1; }
 
 message UpdateTaskRequest {
   string id = 1;
@@ -31,9 +29,7 @@ message UpdateTaskRequest {
   string priority = 5;
 }
 
-message DeleteTaskRequest {
-  string id = 1;
-}
+message DeleteTaskRequest { string id = 1; }
 
 message ListTasksRequest {
   string user_id = 1;

@@ -7,29 +7,22 @@
     "server": "node src/server/server.js",
     "server:dev": "nodemon src/server/server.js",
     "client": "node src/client/client.js",
-    "demo": "npm run client",
-    "test": "jest --verbose",
-    "test:watch": "jest --watch",
-    "benchmark": "node benchmark.js || echo 'benchmark opcional (adicionado no passo 11)'"
+    "demo": "npm run client"
   },
-  "keywords": ["grpc", "protobuf", "sistemas-distribuidos", "rpc"],
+  "keywords": [
+    "grpc",
+    "protobuf",
+    "sistemas-distribuidos",
+    "rpc"
+  ],
   "author": "Eric Rodrigues Diniz - Aluno PUC Minas",
   "license": "MIT",
   "dependencies": {
     "@grpc/grpc-js": "^1.10.6",
     "@grpc/proto-loader": "^0.7.13",
-    "axios": "^1.7.7",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "sqlite3": "^5.1.7",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "grpc-tools": "^1.12.4",
-    "jest": "^29.7.0",
     "nodemon": "^3.1.0"
-  },
-  "jest": {
-    "testEnvironment": "node"
   }
 }

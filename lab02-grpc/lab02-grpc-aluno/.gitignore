@@ -18,3 +18,17 @@ coverage/
 *.log
 *.tmp
 *.swp
+
+# === aluno extra ===
+# sqlite
+*.db
+*.db-journal
+
+# ambiente / credenciais
+.env
+.env.local
+
+# testes e build
+coverage/
+generated/
+logs/
