@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "grpc_address": "localhost:50051",
+    "op": "list",
+    "total": 500,
+    "concurrency": 20,
+    "used_token": true,
+    "timestamp": "2025-08-30T22:49:48.631Z"
+  },
+  "time": {
+    "elapsed_ms": 279.681667
+  },
+  "latency_ms": {
+    "count": 500,
+    "min_ms": 1.985417,
+    "p50_ms": 11.018625,
+    "p90_ms": 12.541917,
+    "p95_ms": 13.00625,
+    "p99_ms": 14.378125,
+    "max_ms": 15.071792,
+    "avg_ms": 11.103694126
+  },
+  "throughput_rps": 1787.746781414886
+}

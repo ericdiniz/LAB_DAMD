@@ -1,0 +1,22 @@
+  console.log
+    ✅ Database gRPC inicializado
+
+      at Database.log [as init] (src/database/database.js:16:13)
+
+  console.log
+    ✅ Serviços gRPC registrados
+
+      at GrpcServer.log [as initialize] (src/server/server.js:41:13)
+
+  console.log
+    ✅ Cliente gRPC inicializado
+
+      at GrpcClient.log [as initialize] (src/client/client.js:20:13)
+
+
+=============================== Coverage summary ===============================
+Statements   : 65.61% ( 229/349 )
+Branches     : 41.11% ( 74/180 )
+Functions    : 74.32% ( 55/74 )
+Lines        : 74.1% ( 206/278 )
+================================================================================

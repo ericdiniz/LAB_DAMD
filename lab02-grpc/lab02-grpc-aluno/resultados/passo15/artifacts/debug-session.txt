@@ -1,0 +1,196 @@
+[2025-08-30T23:12:13.748Z] 📤 [1] initialize
+✅ Cliente gRPC inicializado
+[2025-08-30T23:12:13.768Z] ✅ [1] initialize - 19ms
+[2025-08-30T23:12:13.768Z] 📤 [2] register
+{
+  "email": "dbg_1756595533768@t.com",
+  "username": "dbg_1756595533768",
+  "password": "dbg123",
+  "first_name": "Dbg",
+  "last_name": "User"
+}
+[2025-08-30T23:12:14.067Z] ✅ [2] register - 299ms
+{
+  "errors": [],
+  "success": true,
+  "message": "Usuário criado com sucesso",
+  "user": {
+    "id": "47a3381c-4fce-44b9-b5df-33b04e55e091",
+    "email": "dbg_1756595533768@t.com",
+    "username": "dbg_1756595533768",
+    "first_name": "Dbg",
+    "last_name": "User",
+    "created_at": "0"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ3YTMzODFjLTRmY2UtNDRiOS1iNWRmLTMzYjA0ZTU1ZTA5MSIsImVtYWlsIjoiZGJnXzE3NTY1OTU1MzM3NjhAdC5jb20iLCJ1c2VybmFtZSI6ImRiZ18xNzU2NTk1NTMzNzY4IiwiaWF0IjoxNzU2NTk1NTM0LCJleHAiOjE3NTY2ODE5MzR9.flFyOR1dFCOGk1AKHNPkT4CWFcNMyjo9H8TnGThmryQ"
+}
+[2025-08-30T23:12:14.067Z] 📤 [3] login
+{
+  "identifier": "dbg_1756595533768",
+  "password": "dbg123"
+}
+[2025-08-30T23:12:14.346Z] ✅ [3] login - 279ms
+{
+  "errors": [],
+  "success": true,
+  "message": "Login realizado com sucesso",
+  "user": {
+    "id": "47a3381c-4fce-44b9-b5df-33b04e55e091",
+    "email": "dbg_1756595533768@t.com",
+    "username": "dbg_1756595533768",
+    "first_name": "Dbg",
+    "last_name": "User",
+    "created_at": "1756606334"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ3YTMzODFjLTRmY2UtNDRiOS1iNWRmLTMzYjA0ZTU1ZTA5MSIsImVtYWlsIjoiZGJnXzE3NTY1OTU1MzM3NjhAdC5jb20iLCJ1c2VybmFtZSI6ImRiZ18xNzU2NTk1NTMzNzY4IiwiaWF0IjoxNzU2NTk1NTM0LCJleHAiOjE3NTY2ODE5MzR9.flFyOR1dFCOGk1AKHNPkT4CWFcNMyjo9H8TnGThmryQ"
+}
+[2025-08-30T23:12:14.347Z] 📤 [4] createTask
+{
+  "title": "Task1",
+  "description": "debug",
+  "priority": 1
+}
+[2025-08-30T23:12:14.351Z] ✅ [4] createTask - 4ms
+{
+  "errors": [],
+  "success": true,
+  "message": "Tarefa criada com sucesso",
+  "task": {
+    "id": "c158bb13-5463-437c-a01a-1c198e14cefc",
+    "title": "Task1",
+    "description": "debug",
+    "completed": false,
+    "priority": "MEDIUM",
+    "user_id": "47a3381c-4fce-44b9-b5df-33b04e55e091",
+    "created_at": "0",
+    "updated_at": "0"
+  }
+}
+[2025-08-30T23:12:14.351Z] 📤 [5] createTask
+{
+  "title": "Task2",
+  "description": "debug",
+  "priority": 2
+}
+[2025-08-30T23:12:14.354Z] ✅ [5] createTask - 3ms
+{
+  "errors": [],
+  "success": true,
+  "message": "Tarefa criada com sucesso",
+  "task": {
+    "id": "283832ce-4372-4e24-ae2c-24da11f23e7d",
+    "title": "Task2",
+    "description": "debug",
+    "completed": false,
+    "priority": "MEDIUM",
+    "user_id": "47a3381c-4fce-44b9-b5df-33b04e55e091",
+    "created_at": "0",
+    "updated_at": "0"
+  }
+}
+[2025-08-30T23:12:14.354Z] 📤 [6] getTasks
+{
+  "page": 1,
+  "limit": 5
+}
+[2025-08-30T23:12:14.360Z] ✅ [6] getTasks - 6ms
+{
+  "tasks": [
+    {
+      "id": "c158bb13-5463-437c-a01a-1c198e14cefc",
+      "title": "Task1",
+      "description": "debug",
+      "completed": false,
+      "priority": "MEDIUM",
+      "user_id": "47a3381c-4fce-44b9-b5df-33b04e55e091",
+      "created_at": "1756606334",
+      "updated_at": "1756606334"
+    },
+    {
+      "id": "283832ce-4372-4e24-ae2c-24da11f23e7d",
+      "title": "Task2",
+      "description": "debug",
+      "completed": false,
+      "priority": "MEDIUM",
+      "user_id": "47a3381c-4fce-44b9-b5df-33b04e55e091",
+      "created_at": "1756606334",
+      "updated_at": "1756606334"
+    }
+  ],
+  "success": true,
+  "total": 2,
+  "page": 1,
+  "limit": 5,
+  "message": ""
+}
+[2025-08-30T23:12:14.360Z] 📤 [7] getStats
+[2025-08-30T23:12:14.363Z] ✅ [7] getStats - 3ms
+{
+  "success": true,
+  "stats": {
+    "total": 2,
+    "completed": 0,
+    "pending": 2,
+    "completion_rate": 0
+  }
+}
+[2025-08-30T23:12:14.363Z] 📤 [8] updateTask
+c158bb13-5463-437c-a01a-1c198e14cefc
+[2025-08-30T23:12:14.368Z] ✅ [8] updateTask - 5ms
+{
+  "errors": [],
+  "success": true,
+  "message": "Tarefa atualizada com sucesso",
+  "task": {
+    "id": "c158bb13-5463-437c-a01a-1c198e14cefc",
+    "title": "Task Updated",
+    "description": "debug",
+    "completed": true,
+    "priority": "MEDIUM",
+    "user_id": "47a3381c-4fce-44b9-b5df-33b04e55e091",
+    "created_at": "1756606334",
+    "updated_at": "1756606334"
+  }
+}
+[2025-08-30T23:12:14.368Z] 🌊 streamTasks
+{}
+[2025-08-30T23:12:14.370Z] 📋 streamTasks #1
+{
+  "id": "c158bb13-5463-437c-a01a-1c198e14cefc",
+  "title": "Task Updated"
+}
+[2025-08-30T23:12:14.472Z] 📋 streamTasks #2
+{
+  "id": "283832ce-4372-4e24-ae2c-24da11f23e7d",
+  "title": "Task2"
+}
+[2025-08-30T23:12:15.371Z] ❌ streamTasks error
+{
+  "message": "1 CANCELLED: Cancelled on client"
+}
+[2025-08-30T23:12:15.372Z] 🌊 streamTasks end 2
+[2025-08-30T23:12:15.870Z] 📤 [9] deleteTask
+c158bb13-5463-437c-a01a-1c198e14cefc
+[2025-08-30T23:12:15.880Z] ✅ [9] deleteTask - 10ms
+{
+  "success": true,
+  "message": "Tarefa deletada com sucesso"
+}
+[2025-08-30T23:12:15.881Z] 📤 [10] deleteTask
+283832ce-4372-4e24-ae2c-24da11f23e7d
+[2025-08-30T23:12:15.885Z] ✅ [10] deleteTask - 4ms
+{
+  "success": true,
+  "message": "Tarefa deletada com sucesso"
+}
+
+�� MÉTRICAS DO CLIENTE
+Total: 10 | Erros: 0 | Sucesso: 100.00% | Tempo médio: 63.20ms
+ - initialize: 1 calls, 19.00ms avg, 100.0% success
+ - register: 1 calls, 299.00ms avg, 100.0% success
+ - login: 1 calls, 279.00ms avg, 100.0% success
+ - createTask: 2 calls, 3.50ms avg, 100.0% success
+ - getTasks: 1 calls, 6.00ms avg, 100.0% success
+ - getStats: 1 calls, 3.00ms avg, 100.0% success
+ - updateTask: 1 calls, 5.00ms avg, 100.0% success
+ - deleteTask: 2 calls, 7.00ms avg, 100.0% success
