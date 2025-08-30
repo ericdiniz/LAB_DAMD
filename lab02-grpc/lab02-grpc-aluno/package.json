@@ -17,7 +17,9 @@
     "bench:grpc": "node bench/grpc-benchmark.js",
     "bench:grpc:list": "BENCH_OP=list   node bench/grpc-benchmark.js",
     "bench:grpc:create": "BENCH_OP=create node bench/grpc-benchmark.js",
-    "bench:grpc:stats": "BENCH_OP=stats  node bench/grpc-benchmark.js"
+    "bench:grpc:stats": "BENCH_OP=stats  node bench/grpc-benchmark.js",
+    "debug:client": "node src/client/debug-client.js",
+    "debug:client:save": "node src/client/debug-client.js | tee resultados/passo13/debug-session.txt"
   },
   "keywords": [
     "grpc",
