@@ -1,114 +1,143 @@
 const grpc = require('@grpc/grpc-js');
-const protoLoader = require('@grpc/proto-loader');
-const path = require('path');
+const ProtoLoader = require('../utils/protoLoader');
 
-class TaskGRPCClient {
+class GrpcClient {
   constructor(serverAddress = 'localhost:50051') {
     this.serverAddress = serverAddress;
-    this.loadProto();
-    this.client = new this.taskPkg.TaskService(
-      this.serverAddress,
-      grpc.credentials.createInsecure()
-    );
+    this.loader = new ProtoLoader();
+    this.authClient = null;
+    this.taskClient = null;
+    this.token = null;
   }
 
-  loadProto() {
-    const PROTO_PATH = path.join(__dirname, '../../proto/task.proto');
-    const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-      keepCase: true,
-      longs: String,
-      enums: String,
-      defaults: false,
-      oneofs: true
-    });
-    const descriptor = grpc.loadPackageDefinition(packageDefinition);
-    this.taskPkg = descriptor.task;
+  async init() {
+    const authPkg = this.loader.loadProto('auth_service.proto', 'auth');
+    const tasksPkg = this.loader.loadProto('task_service.proto', 'tasks');
+    const creds = grpc.credentials.createInsecure();
+    this.authClient = new authPkg.AuthService(this.serverAddress, creds);
+    this.taskClient = new tasksPkg.TaskService(this.serverAddress, creds);
+    console.log('✅ Cliente gRPC inicializado');
   }
 
-  createTask(title, description = '', priority = 'medium', userId = 'user1') {
-    return new Promise((resolve, reject) => {
-      this.client.createTask({ title, description, priority, user_id: userId },
-        (err, res) => err ? reject(err) : resolve(res)
-      );
+  // helper de promisificação
+  p(client, method) {
+    return (req) => new Promise((resolve, reject) => {
+      client[method](req, (err, res) => err ? reject(err) : resolve(res));
     });
   }
 
-  getTask(id) {
-    return new Promise((resolve, reject) => {
-      this.client.getTask({ id }, (err, res) => err ? reject(err) : resolve(res));
-    });
+  async register({ email, username, password, first_name, last_name }) {
+    const fn = this.p(this.authClient, 'Register');
+    return fn({ email, username, password, first_name, last_name });
   }
 
-  listTasks(userId = 'user1', completed, priority) {
-    return new Promise((resolve, reject) => {
-      const req = { user_id: userId };
-      if (typeof completed === 'boolean') req.completed = completed;
-      if (priority) req.priority = priority;
-      this.client.listTasks(req, (err, res) => err ? reject(err) : resolve(res));
-    });
+  async login({ identifier, password }) {
+    const fn = this.p(this.authClient, 'Login');
+    const res = await fn({ identifier, password });
+    if (res.success) this.token = res.token;
+    return res;
   }
 
-  updateTask(id, updates) {
-    return new Promise((resolve, reject) => {
-      this.client.updateTask({ id, ...updates }, (err, res) => err ? reject(err) : resolve(res));
-    });
+  async createTask({ title, description = '', priority = 1 }) {
+    const fn = this.p(this.taskClient, 'CreateTask');
+    return fn({ token: this.token, title, description, priority });
   }
 
-  deleteTask(id) {
-    return new Promise((resolve, reject) => {
-      this.client.deleteTask({ id }, (err, res) => err ? reject(err) : resolve(res));
-    });
+  async getTasks(filters = {}) {
+    const fn = this.p(this.taskClient, 'GetTasks');
+    return fn({ token: this.token, ...filters });
   }
 
-  streamTaskUpdates(userId = 'user1', onUpdate) {
-    const stream = this.client.streamTaskUpdates({ user_id: userId });
-    stream.on('data', (res) => onUpdate?.(res));
-    stream.on('error', (err) => {
-      if (err?.code !== grpc.status.CANCELLED) console.error('Erro no stream:', err);
-    });
-    stream.on('end', () => console.log('Stream finalizado'));
+  async getTask(task_id) {
+    const fn = this.p(this.taskClient, 'GetTask');
+    return fn({ token: this.token, task_id });
+  }
+
+  async updateTask(task_id, updates) {
+    const fn = this.p(this.taskClient, 'UpdateTask');
+    return fn({ token: this.token, task_id, ...updates });
+  }
+
+  async deleteTask(task_id) {
+    const fn = this.p(this.taskClient, 'DeleteTask');
+    return fn({ token: this.token, task_id });
+  }
+
+  async getStats() {
+    const fn = this.p(this.taskClient, 'GetTaskStats');
+    return fn({ token: this.token });
+  }
+
+  // streams (opcional na demo)
+  streamTasks(filters = {}) {
+    const stream = this.taskClient.StreamTasks({ token: this.token, ...filters });
+    stream.on('data', (t) => console.log('�� Stream Task:', t.title, 'done?', t.completed));
+    stream.on('error', (e) => console.error('stream tasks error:', e.message));
+    stream.on('end', () => console.log('📋 Stream tasks finalizado'));
     return stream;
   }
 
-  close() { this.client.close(); }
-}
-
-// Demonstração quando executado diretamente
-async function demonstrateGRPC() {
-  const client = new TaskGRPCClient();
-  const userId = 'demo-user';
-  console.log('🔄 Demonstração Cliente gRPC\n');
-
-  try {
-    console.log('📝 Criando tarefas...');
-    const t1 = await client.createTask('Estudar gRPC', 'Aprender Protobuf e streaming', 'high', userId);
-    console.log(`✅ Tarefa criada: ${t1.task.title}`);
-    const t2 = await client.createTask('Implementar servidor', 'Node.js', 'medium', userId);
-    console.log(`✅ Tarefa criada: ${t2.task.title}`);
-
-    console.log('\n📋 Listando tarefas...');
-    const list = await client.listTasks(userId);
-    console.log(`📊 Total: ${list.total}`);
-    list.tasks.forEach(t => console.log(`  - ${t.title} [${t.priority}]`));
-
-    console.log('\n�� Atualizando tarefa...');
-    const upd = await client.updateTask(t1.task.id, { completed: true, title: 'Estudar gRPC - Concluído!' });
-    console.log(`✅ Atualizada: ${upd.task.title}`);
-
-    console.log('\n🌊 Iniciando stream de atualizações...');
-    const stream = client.streamTaskUpdates(userId, (u) => {
-      console.log(`📨 ${u.message}${u.task ? `: ${u.task.title}` : ''}`);
-    });
-
-    setTimeout(async () => { await client.createTask('Nova via stream', 'Teste', 'low', userId); }, 2000);
-    setTimeout(async () => { await client.updateTask(t2.task.id, { completed: true }); }, 4000);
-    setTimeout(() => { stream.cancel(); client.close(); console.log('\n✅ Demonstração concluída'); }, 6000);
-
-  } catch (e) {
-    console.error('❌ Erro:', e);
+  streamNotifications() {
+    const stream = this.taskClient.StreamNotifications({ token: this.token });
+    const types = ['CREATED','UPDATED','DELETED','COMPLETED'];
+    stream.on('data', (n) => console.log('🔔 Notif:', types[n.type], n.message, n.task?.title || ''));
+    stream.on('error', (e) => console.error('stream notif error:', e.message));
+    stream.on('end', () => console.log('🔔 Stream notificações finalizado'));
+    return stream;
   }
 }
 
-if (require.main === module) demonstrateGRPC();
+// Demonstração rápida
+async function demo() {
+  const c = new GrpcClient();
+  await c.init();
 
-module.exports = TaskGRPCClient;
+  const uniq = Date.now();
+  console.log('\n1) Registrando...');
+  const reg = await c.register({
+    email: `usuario${uniq}@teste.com`,
+    username: `user${uniq}`,
+    password: 'senha123',
+    first_name: 'Aluno',
+    last_name: 'gRPC'
+  });
+  console.log('Registro:', reg.message);
+
+  console.log('\n2) Login...');
+  const login = await c.login({ identifier: `usuario${uniq}@teste.com`, password: 'senha123' });
+  console.log('Login:', login.message);
+
+  console.log('\n3) Criando tarefa...');
+  const created = await c.createTask({ title: 'Estudar gRPC', description: 'Proto + streaming', priority: 2 });
+  console.log('Criada:', created.task.title);
+
+  console.log('\n4) Listando...');
+  const list = await c.getTasks({ page: 1, limit: 10 });
+  console.log('Total:', list.total);
+
+  if (list.tasks?.length) {
+    const id = list.tasks[0].id;
+    console.log('\n5) GetTask...');
+    const one = await c.getTask(id);
+    console.log('Encontrada:', one.task.title);
+
+    console.log('\n6) UpdateTask...');
+    const upd = await c.updateTask(id, { completed: true, title: one.task.title + ' ✅' });
+    console.log('Atualizada:', upd.task.title, 'done?', upd.task.completed);
+  }
+
+  console.log('\n7) Stats...');
+  const stats = await c.getStats();
+  console.log('Stats:', stats.stats);
+
+  // Streams (opcional)
+  // const s1 = c.streamNotifications();
+  // const s2 = c.streamTasks();
+  // setTimeout(() => { s1.cancel(); s2.cancel(); }, 3000);
+}
+
+if (require.main === module) {
+  demo().catch(e => console.error('❌ Erro na demo:', e));
+}
+
+module.exports = GrpcClient;
