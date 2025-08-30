@@ -6,7 +6,10 @@ class TaskGRPCClient {
   constructor(serverAddress = 'localhost:50051') {
     this.serverAddress = serverAddress;
     this.loadProto();
-    this.client = new this.taskPkg.TaskService(this.serverAddress, grpc.credentials.createInsecure());
+    this.client = new this.taskPkg.TaskService(
+      this.serverAddress,
+      grpc.credentials.createInsecure()
+    );
   }
 
   loadProto() {
@@ -24,15 +27,19 @@ class TaskGRPCClient {
 
   createTask(title, description = '', priority = 'medium', userId = 'user1') {
     return new Promise((resolve, reject) => {
-      this.client.createTask({ title, description, priority, user_id: userId }, (err, res) => err ? reject(err) : resolve(res));
+      this.client.createTask({ title, description, priority, user_id: userId },
+        (err, res) => err ? reject(err) : resolve(res)
+      );
     });
   }
+
   getTask(id) {
     return new Promise((resolve, reject) => {
       this.client.getTask({ id }, (err, res) => err ? reject(err) : resolve(res));
     });
   }
-  listTasks(userId = 'user1', completed = undefined, priority = undefined) {
+
+  listTasks(userId = 'user1', completed, priority) {
     return new Promise((resolve, reject) => {
       const req = { user_id: userId };
       if (typeof completed === 'boolean') req.completed = completed;
@@ -40,11 +47,13 @@ class TaskGRPCClient {
       this.client.listTasks(req, (err, res) => err ? reject(err) : resolve(res));
     });
   }
+
   updateTask(id, updates) {
     return new Promise((resolve, reject) => {
       this.client.updateTask({ id, ...updates }, (err, res) => err ? reject(err) : resolve(res));
     });
   }
+
   deleteTask(id) {
     return new Promise((resolve, reject) => {
       this.client.deleteTask({ id }, (err, res) => err ? reject(err) : resolve(res));
@@ -55,9 +64,7 @@ class TaskGRPCClient {
     const stream = this.client.streamTaskUpdates({ user_id: userId });
     stream.on('data', (res) => onUpdate?.(res));
     stream.on('error', (err) => {
-      if (!(err?.code === grpc.status.CANCELLED)) {
-        console.error('Erro no stream:', err);
-      }
+      if (err?.code !== grpc.status.CANCELLED) console.error('Erro no stream:', err);
     });
     stream.on('end', () => console.log('Stream finalizado'));
     return stream;
@@ -66,6 +73,7 @@ class TaskGRPCClient {
   close() { this.client.close(); }
 }
 
+// Demonstração quando executado diretamente
 async function demonstrateGRPC() {
   const client = new TaskGRPCClient();
   const userId = 'demo-user';
@@ -83,7 +91,7 @@ async function demonstrateGRPC() {
     console.log(`📊 Total: ${list.total}`);
     list.tasks.forEach(t => console.log(`  - ${t.title} [${t.priority}]`));
 
-    console.log('\n🔄 Atualizando tarefa...');
+    console.log('\n�� Atualizando tarefa...');
     const upd = await client.updateTask(t1.task.id, { completed: true, title: 'Estudar gRPC - Concluído!' });
     console.log(`✅ Atualizada: ${upd.task.title}`);
 
