@@ -69,7 +69,7 @@ async function main() {
   const GRPC_ADDR = process.env.GRPC_ADDR || 'localhost:50051';
   const OP = (process.env.BENCH_OP || 'list').toLowerCase(); // list|create|stats
   const TOTAL = parseInt(process.env.TOTAL || '500', 10);
-  const CONC = parseInt(process.env.CONCURRENCY || '20', 10);
+  const CONC = Math.max(1, parseInt(process.env.CONCURRENCY || '20', 10));
 
   const client = new GrpcClient(GRPC_ADDR);
   await client.initialize();
@@ -138,7 +138,14 @@ async function main() {
   const rps = (TOTAL / (elapsedMs / 1000));
 
   const summary = {
-    meta: { grpc_address: GRPC_ADDR, op: OP, total: TOTAL, concurrency: CONC, used_token: !!envToken },
+    meta: {
+      grpc_address: GRPC_ADDR,
+      op: OP,
+      total: TOTAL,
+      concurrency: CONC,
+      used_token: !!envToken,
+      timestamp: new Date().toISOString()
+    },
     time: { elapsed_ms: elapsedMs },
     latency_ms: s,
     throughput_rps: rps,
@@ -156,6 +163,7 @@ async function main() {
     '# Benchmark gRPC (Passo 11)',
     `- **Servidor**: \`${GRPC_ADDR}\``,
     `- **Operação**: \`${OP}\``,
+    `- **Timestamp**: \`${summary.meta.timestamp}\``,
     `- **Total requisições**: \`${TOTAL}\``,
     `- **Concorrência**: \`${CONC}\``,
     `- **Tempo total**: \`${summary.time.elapsed_ms.toFixed(2)} ms\``,

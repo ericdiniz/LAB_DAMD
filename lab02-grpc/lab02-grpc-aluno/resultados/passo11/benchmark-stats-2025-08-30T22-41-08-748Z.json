@@ -1,6 +1,3 @@
-✅ Cliente gRPC inicializado
-[BENCH] using token from ENV len/prefix: 275 eyJhbGciOiJIUzI1NiIs
-[BENCH] warmup createTask with token len: 275
 {
   "meta": {
     "grpc_address": "localhost:50051",
