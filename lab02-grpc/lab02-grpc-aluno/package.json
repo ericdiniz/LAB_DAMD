@@ -12,7 +12,12 @@
     "test:watch": "jest --watch",
     "benchmark": "node benchmark.js || echo 'benchmark opcional (adicionado no passo 11)'"
   },
-  "keywords": ["grpc", "protobuf", "sistemas-distribuidos", "rpc"],
+  "keywords": [
+    "grpc",
+    "protobuf",
+    "sistemas-distribuidos",
+    "rpc"
+  ],
   "author": "Eric Rodrigues Diniz - Aluno PUC Minas",
   "license": "MIT",
   "dependencies": {

@@ -1,29 +1,26 @@
-const path = require('path');
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
+const path = require('path');
 
 class ProtoLoader {
-  constructor(baseDir = path.join(__dirname, '../../protos')) {
-    this.baseDir = baseDir;
+  constructor() {
+    this.services = new Map();
   }
-
-  loadProto(fileName, packageName) {
-    const protoPath = path.join(this.baseDir, fileName);
-    const pkgDef = protoLoader.loadSync(protoPath, {
-      keepCase: true,
-      longs: String,
-      enums: String,
-      defaults: false,
-      oneofs: true
+  loadProto(protoFile, packageName) {
+    const PROTO_PATH = path.join(__dirname, '..', '..', 'proto', protoFile);
+    const def = protoLoader.loadSync(PROTO_PATH, {
+      keepCase: true, longs: String, enums: String, defaults: true, oneofs: true
     });
-    const descriptor = grpc.loadPackageDefinition(pkgDef);
-    return packageName ? descriptor[packageName] : descriptor;
+    const desc = grpc.loadPackageDefinition(def);
+    this.services.set(packageName, desc[packageName]);
+    return desc[packageName];
   }
+  getService(packageName) { return this.services.get(packageName); }
 
-  // helpers para enums string<->int, se precisar
-  static toEnum(value, EnumObj) {
-    if (typeof value === 'string') return EnumObj[value] ?? undefined;
-    return value;
-  }
+  static convertTimestamp(date) { return Math.floor(new Date(date).getTime()/1000); }
+  static convertFromTimestamp(ts) { return new Date(parseInt(ts)*1000); }
+  static convertPriority(p) { return ({low:0, medium:1, high:2, urgent:3}[p] ?? 1); }
+  static convertFromPriority(v) { return (['low','medium','high','urgent'][v] ?? 'medium'); }
 }
+
 module.exports = ProtoLoader;

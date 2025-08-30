@@ -1,71 +1,36 @@
 const grpc = require('@grpc/grpc-js');
-const protoLoader = require('@grpc/proto-loader');
+const ProtoLoader = require('../utils/protoLoader');
 const path = require('path');
-const TaskServiceImpl = require('./services/taskService');
+const database = require('../database/database');
 
-class GRPCServer {
-  constructor() {
-    this.server = new grpc.Server();
-    this.port = process.env.GRPC_PORT || 50051;
-    this.loadProto();
-    this.setupServices();
-  }
+const AuthServiceImpl = require('../services/AuthService');
+const TaskServiceImpl = require('../services/TaskService');
 
-  loadProto() {
-    const PROTO_PATH = path.join(__dirname, '../../proto/task.proto');
-    const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-      keepCase: true,
-      longs: String,
-      enums: String,
-      defaults: false,
-      oneofs: true
-    });
-    const descriptor = grpc.loadPackageDefinition(packageDefinition);
-    this.taskPkg = descriptor.task;
-  }
+async function main(){
+  await database.init();
 
-  setupServices() {
-    const impl = new TaskServiceImpl();
-    this.server.addService(this.taskPkg.TaskService.service, {
-      createTask: impl.createTask.bind(impl),
-      getTask: impl.getTask.bind(impl),
-      listTasks: impl.listTasks.bind(impl),
-      updateTask: impl.updateTask.bind(impl),
-      deleteTask: impl.deleteTask.bind(impl),
-      streamTaskUpdates: impl.streamTaskUpdates.bind(impl)
-    });
-  }
+  const loader = new ProtoLoader();
+  const authPkg = loader.loadProto('auth_service.proto', 'auth');
+  const tasksPkg = loader.loadProto('task_service.proto', 'tasks');
 
-  start() {
-    const addr = `0.0.0.0:${this.port}`;
-    this.server.bindAsync(addr, grpc.ServerCredentials.createInsecure(), (err, port) => {
-      if (err) {
-        console.error('❌ Erro ao iniciar gRPC:', err);
-        process.exit(1);
-      }
-      console.log('🚀 =====================================');
-      console.log('🚀 Servidor gRPC iniciado');
-      console.log(`🚀 Porta: ${port}`);
-      console.log('🚀 Protocolo: HTTP/2 + Protobuf');
-      console.log('🚀 Serviços: TaskService (CRUD + Streaming)');
-      console.log('🚀 =====================================');
-      this.server.start();
-    });
-  }
+  const server = new grpc.Server();
+  server.addService(authPkg.AuthService.service, new AuthServiceImpl());
+  server.addService(tasksPkg.TaskService.service, new TaskServiceImpl());
 
-  stop() {
-    this.server.tryShutdown((e) => {
-      if (e) console.error('Erro ao parar:', e);
-      else console.log('✅ Servidor gRPC parado');
-    });
-  }
+  const port = process.env.GRPC_PORT || 50051;
+  server.bindAsync(`0.0.0.0:${port}`, grpc.ServerCredentials.createInsecure(), (err, p)=>{
+    if(err){ console.error('Erro ao subir gRPC:', err); process.exit(1); }
+    console.log('🚀 =====================================');
+    console.log('🚀 Servidor gRPC (aluno) iniciado');
+    console.log(`🚀 Porta: ${p}`);
+    console.log('🚀 Serviços: AuthService + TaskService');
+    console.log('🚀 =====================================');
+    server.start();
+  });
+
+  process.on('SIGINT', ()=> server.tryShutdown(()=>process.exit(0)));
+  process.on('SIGTERM', ()=> server.tryShutdown(()=>process.exit(0)));
 }
 
-if (require.main === module) {
-  const s = new GRPCServer();
-  s.start();
-  process.on('SIGINT', () => s.stop());
-  process.on('SIGTERM', () => s.stop());
-}
-
-module.exports = GRPCServer;
+if(require.main===module) main();
+module.exports = main;
