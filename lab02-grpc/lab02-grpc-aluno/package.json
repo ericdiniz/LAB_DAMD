@@ -9,8 +9,13 @@
     "client": "node src/client/client.js",
     "demo": "npm run client"
   },
-  "keywords": ["grpc", "protobuf", "sistemas-distribuidos", "rpc"],
-  "author": "Aluno PUC Minas",
+  "keywords": [
+    "grpc",
+    "protobuf",
+    "sistemas-distribuidos",
+    "rpc"
+  ],
+  "author": "Eric Rodrigues Diniz - Aluno PUC Minas",
   "license": "MIT",
   "dependencies": {
     "@grpc/grpc-js": "^1.10.6",
