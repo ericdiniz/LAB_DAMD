@@ -1,0 +1,26 @@
+✅ Cliente gRPC inicializado
+[BENCH] using token from ENV len/prefix: 275 eyJhbGciOiJIUzI1NiIs
+[BENCH] warmup createTask with token len: 275
+{
+  "meta": {
+    "grpc_address": "localhost:50051",
+    "op": "create",
+    "total": 200,
+    "concurrency": 10,
+    "used_token": true
+  },
+  "time": {
+    "elapsed_ms": 107.168125
+  },
+  "latency_ms": {
+    "count": 200,
+    "min_ms": 4.176625,
+    "p50_ms": 5.262583,
+    "p90_ms": 6.05975,
+    "p95_ms": 6.16375,
+    "p99_ms": 6.262541,
+    "max_ms": 6.270792,
+    "avg_ms": 5.34458585
+  },
+  "throughput_rps": 1866.2265482390403
+}
