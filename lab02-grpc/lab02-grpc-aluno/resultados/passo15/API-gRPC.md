@@ -1,9 +1,11 @@
-# API gRPC — Sistema de Tarefas
+# API gRPC - Sistema de Gerenciamento de Tarefas
 
-## AuthService
+## Endpoints de Autenticação
 
-### Register
+### AuthService.Register
+
 **Request:**
+
 ```protobuf
 {
   email: string
@@ -15,6 +17,7 @@
 ```
 
 **Response:**
+
 ```protobuf
 {
   success: bool
@@ -25,8 +28,10 @@
 }
 ```
 
-### Login
+### AuthService.Login
+
 **Request:**
+
 ```protobuf
 {
   identifier: string  // email ou username
@@ -35,6 +40,7 @@
 ```
 
 **Response:**
+
 ```protobuf
 {
   success: bool
@@ -45,23 +51,25 @@
 }
 ```
 
----
+## Endpoints de Tarefas
 
-## TaskService
+### TaskService.CreateTask
 
-### CreateTask
 **Request:**
+
 ```protobuf
 {
   token: string
   title: string
   description: string
-  priority: Priority  // 0=LOW, 1=MEDIUM, 2=HIGH, 3=URGENT
+  priority: Priority (LOW=0, MEDIUM=1, HIGH=2, URGENT=3)
 }
 ```
 
-### GetTasks (paginação)
+### TaskService.GetTasks (com paginação)
+
 **Request:**
+
 ```protobuf
 {
   token: string
@@ -72,51 +80,10 @@
 }
 ```
 
-### GetStats
-**Request:**
-```protobuf
-{
-  token: string
-}
-```
+### TaskService.StreamTasks (Server Streaming)
 
-**Response:**
-```protobuf
-{
-  success: bool
-  stats: {
-    total: int32
-    completed: int32
-    pending: int32
-    completion_rate: float
-  }
-}
-```
-
-### UpdateTask
 **Request:**
-```protobuf
-{
-  token: string
-  id: string
-  title: string (optional)
-  description: string (optional)
-  completed: bool (optional)
-  priority: Priority (optional)
-}
-```
 
-### DeleteTask
-**Request:**
-```protobuf
-{
-  token: string
-  id: string
-}
-```
-
-### StreamTasks (Server Streaming)
-**Request:**
 ```protobuf
 {
   token: string
@@ -125,6 +92,7 @@
 ```
 
 **Response Stream:**
+
 ```protobuf
 Task {
   id: string
@@ -138,8 +106,10 @@ Task {
 }
 ```
 
-### StreamNotifications (Server Streaming)
+### TaskService.StreamNotifications (Server Streaming)
+
 **Response Stream:**
+
 ```protobuf
 TaskNotification {
   type: NotificationType
@@ -149,41 +119,28 @@ TaskNotification {
 }
 ```
 
----
-
 ## Tipos de Dados
 
-### User
-```protobuf
-User {
-  id: string
-  email: string
-  username: string
-  first_name: string
-  last_name: string
-  created_at: int64
-}
-```
-
 ### Priority (Enum)
+
 - LOW = 0
 - MEDIUM = 1
 - HIGH = 2
 - URGENT = 3
 
 ### NotificationType (Enum)
+
 - TASK_CREATED = 0
 - TASK_UPDATED = 1
 - TASK_DELETED = 2
 - TASK_COMPLETED = 3
 
----
-
 ## Códigos de Erro gRPC
-| Código | Nome               | Descrição                |
-|-------:|--------------------|--------------------------|
-| 0      | OK                 | Sucesso                  |
-| 3      | INVALID_ARGUMENT   | Dados inválidos          |
-| 5      | NOT_FOUND          | Recurso não encontrado   |
-| 13     | INTERNAL           | Erro interno do servidor |
-| 16     | UNAUTHENTICATED    | Token inválido/ausente   |
+
+| Código | Nome             | Descrição                |
+| ------ | ---------------- | ------------------------ |
+| 0      | OK               | Sucesso                  |
+| 3      | INVALID_ARGUMENT | Dados inválidos          |
+| 16     | UNAUTHENTICATED  | Token inválido/ausente   |
+| 5      | NOT_FOUND        | Recurso não encontrado   |
+| 13     | INTERNAL         | Erro interno do servidor |
