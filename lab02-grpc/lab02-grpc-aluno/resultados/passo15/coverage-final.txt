@@ -1,0 +1,34 @@
+  console.log
+    ✅ Database gRPC inicializado
+
+      at Database.log [as init] (src/database/database.js:16:13)
+
+  console.log
+    ✅ Serviços gRPC registrados
+
+      at GrpcServer.log [as initialize] (src/server/server.js:41:13)
+
+  console.log
+    ✅ Cliente gRPC inicializado
+
+      at GrpcClient.log [as initialize] (src/client/client.js:20:13)
+
+-----------------|---------|----------|---------|---------|--------------------------------------
+File             | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                    
+-----------------|---------|----------|---------|---------|--------------------------------------
+All files        |   65.61 |    41.11 |   74.32 |    74.1 |                                      
+ client          |   76.74 |     42.1 |   77.77 |   79.48 |                                      
+  client.js      |   76.74 |     42.1 |   77.77 |   79.48 | 40,73,81-92                          
+ database        |   96.29 |    36.36 |     100 |     100 |                                      
+  database.js    |   96.29 |    36.36 |     100 |     100 | 50-68                                
+ models          |   81.57 |    73.33 |   72.72 |   86.95 |                                      
+  Task.js        |   76.19 |       70 |      60 |   84.61 | 22-23                                
+  User.js        |   88.23 |       80 |   83.33 |      90 | 11                                   
+ server          |   47.22 |    14.28 |   33.33 |   47.22 |                                      
+  server.js      |   47.22 |    14.28 |   33.33 |   47.22 | 45-70,75-76                          
+ services        |   57.89 |    33.02 |   73.68 |   72.34 |                                      
+  AuthService.js |   53.19 |    52.17 |   66.66 |   60.97 | 11,22-23,39-55                       
+  TaskService.js |   59.44 |     27.9 |      75 |      77 | 12,27,42,53,75,89,99,113-124,130-140 
+ utils           |      80 |       75 |   57.14 |      80 |                                      
+  protoLoader.js |      80 |       75 |   57.14 |      80 | 18-21                                
+-----------------|---------|----------|---------|---------|--------------------------------------

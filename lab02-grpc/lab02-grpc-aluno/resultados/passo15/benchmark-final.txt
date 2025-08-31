@@ -1,0 +1,91 @@
+
+> lab02-grpc-aluno@1.0.0 benchmark
+> node benchmark.js || echo 'benchmark opcional (adicionado no passo 11)'
+
+
+=== Benchmark LIST | TOTAL=500 CONCURRENCY=20 ===
+✅ Cliente gRPC inicializado
+[BENCH] using token from ENV len/prefix: 275 eyJhbGciOiJIUzI1NiIs
+[BENCH] warmup createTask with token len: 275
+{
+  "meta": {
+    "grpc_address": "localhost:50051",
+    "op": "list",
+    "total": 500,
+    "concurrency": 20,
+    "used_token": true,
+    "timestamp": "2025-08-31T00:39:32.095Z"
+  },
+  "time": {
+    "elapsed_ms": 259.434334
+  },
+  "latency_ms": {
+    "count": 500,
+    "min_ms": 1.999041,
+    "p50_ms": 9.915958,
+    "p90_ms": 12.340583,
+    "p95_ms": 13.750333,
+    "p99_ms": 17.631125,
+    "max_ms": 18.339041,
+    "avg_ms": 10.226127960000001
+  },
+  "throughput_rps": 1927.2699657401554
+}
+
+=== Benchmark CREATE | TOTAL=250 CONCURRENCY=10 ===
+✅ Cliente gRPC inicializado
+[BENCH] using token from ENV len/prefix: 275 eyJhbGciOiJIUzI1NiIs
+[BENCH] warmup createTask with token len: 275
+{
+  "meta": {
+    "grpc_address": "localhost:50051",
+    "op": "create",
+    "total": 250,
+    "concurrency": 10,
+    "used_token": true,
+    "timestamp": "2025-08-31T00:39:32.372Z"
+  },
+  "time": {
+    "elapsed_ms": 132.185084
+  },
+  "latency_ms": {
+    "count": 250,
+    "min_ms": 4.074208,
+    "p50_ms": 5.148042,
+    "p90_ms": 6.600041,
+    "p95_ms": 6.757584,
+    "p99_ms": 6.929834,
+    "max_ms": 6.973625,
+    "avg_ms": 5.276122508
+  },
+  "throughput_rps": 1891.2875222744499
+}
+
+=== Benchmark STATS | TOTAL=1000 CONCURRENCY=50 ===
+✅ Cliente gRPC inicializado
+[BENCH] using token from ENV len/prefix: 275 eyJhbGciOiJIUzI1NiIs
+[BENCH] warmup createTask with token len: 275
+{
+  "meta": {
+    "grpc_address": "localhost:50051",
+    "op": "stats",
+    "total": 1000,
+    "concurrency": 50,
+    "used_token": true,
+    "timestamp": "2025-08-31T00:39:32.946Z"
+  },
+  "time": {
+    "elapsed_ms": 425.77775
+  },
+  "latency_ms": {
+    "count": 1000,
+    "min_ms": 2.122792,
+    "p50_ms": 21.691666,
+    "p90_ms": 25.224167,
+    "p95_ms": 25.842709,
+    "p99_ms": 27.271125,
+    "max_ms": 31.221459,
+    "avg_ms": 20.988987743
+  },
+  "throughput_rps": 2348.643159488724
+}
