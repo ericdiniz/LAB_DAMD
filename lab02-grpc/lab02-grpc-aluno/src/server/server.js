@@ -38,6 +38,7 @@ class GrpcServer {
       StreamNotifications: this.taskService.streamNotifications.bind(this.taskService),
     });
 
+    require('./registerChat')(this.server);
     console.log('✅ Serviços gRPC registrados');
   }
 
