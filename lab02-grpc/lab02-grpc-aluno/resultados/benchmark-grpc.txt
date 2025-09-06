@@ -1,0 +1,91 @@
+
+> lab02-grpc-aluno@1.0.0 benchmark
+> node benchmark.js || echo 'benchmark opcional (adicionado no passo 11)'
+
+
+=== Benchmark LIST | TOTAL=500 CONCURRENCY=20 ===
+✅ Cliente gRPC inicializado
+[BENCH] using token from login/register len/prefix: 283 eyJhbGciOiJIUzI1NiIs
+[BENCH] warmup createTask with token len: 283
+{
+  "meta": {
+    "grpc_address": "localhost:50051",
+    "op": "list",
+    "total": 500,
+    "concurrency": 20,
+    "used_token": false,
+    "timestamp": "2025-09-06T22:04:55.077Z"
+  },
+  "time": {
+    "elapsed_ms": 273.062709
+  },
+  "latency_ms": {
+    "count": 500,
+    "min_ms": 1.705875,
+    "p50_ms": 10.867375,
+    "p90_ms": 12.346375,
+    "p95_ms": 12.86625,
+    "p99_ms": 13.480292,
+    "max_ms": 13.953542,
+    "avg_ms": 10.763443832
+  },
+  "throughput_rps": 1831.0812261076633
+}
+
+=== Benchmark CREATE | TOTAL=250 CONCURRENCY=10 ===
+✅ Cliente gRPC inicializado
+[BENCH] using token from login/register len/prefix: 283 eyJhbGciOiJIUzI1NiIs
+[BENCH] warmup createTask with token len: 283
+{
+  "meta": {
+    "grpc_address": "localhost:50051",
+    "op": "create",
+    "total": 250,
+    "concurrency": 10,
+    "used_token": false,
+    "timestamp": "2025-09-06T22:04:55.918Z"
+  },
+  "time": {
+    "elapsed_ms": 150.301916
+  },
+  "latency_ms": {
+    "count": 250,
+    "min_ms": 4.3845,
+    "p50_ms": 5.576333,
+    "p90_ms": 7.997125,
+    "p95_ms": 9.317416,
+    "p99_ms": 9.51775,
+    "max_ms": 9.910708,
+    "avg_ms": 5.999854268
+  },
+  "throughput_rps": 1663.318782975461
+}
+
+=== Benchmark STATS | TOTAL=1000 CONCURRENCY=50 ===
+✅ Cliente gRPC inicializado
+[BENCH] using token from login/register len/prefix: 283 eyJhbGciOiJIUzI1NiIs
+[BENCH] warmup createTask with token len: 283
+{
+  "meta": {
+    "grpc_address": "localhost:50051",
+    "op": "stats",
+    "total": 1000,
+    "concurrency": 50,
+    "used_token": false,
+    "timestamp": "2025-09-06T22:04:57.085Z"
+  },
+  "time": {
+    "elapsed_ms": 434.150125
+  },
+  "latency_ms": {
+    "count": 1000,
+    "min_ms": 1.258958,
+    "p50_ms": 22.541709,
+    "p90_ms": 23.94975,
+    "p95_ms": 24.667208,
+    "p99_ms": 26.070917,
+    "max_ms": 27.344917,
+    "avg_ms": 21.401789561999998
+  },
+  "throughput_rps": 2303.3507130741928
+}

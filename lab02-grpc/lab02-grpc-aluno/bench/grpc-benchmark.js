@@ -44,7 +44,7 @@ async function ensureAuth(client) {
 
   // tenta login (assinatura correta: identifier, password)
   try {
-    const r = await client.login(username, password);
+    const r = await client.login({ identifier: username, password });
     if (r?.success && client.currentToken) return;
   } catch { }
 
@@ -59,7 +59,7 @@ async function ensureAuth(client) {
     });
   } catch { }
 
-  const r2 = await client.login(username, password);
+  const r2 = await client.login({ identifier: username, password });
   if (!(r2?.success && client.currentToken)) {
     throw new Error('Falha ao obter token de autenticação');
   }
