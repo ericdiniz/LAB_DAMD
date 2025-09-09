@@ -1,0 +1,28 @@
+[
+  {
+    "id": "8da5593d-ac79-4df1-9988-c8e5b93a8464",
+    "name": "Notebook Gamer",
+    "price": 3499.99,
+    "stock": 5,
+    "active": true,
+    "category": {
+      "name": "eletronicos",
+      "slug": "eletronicos"
+    },
+    "createdAt": "2025-09-09T00:30:34.655Z",
+    "updatedAt": "2025-09-09T00:30:34.656Z"
+  },
+  {
+    "id": "5dbe1934-16f1-4566-aede-641238b0d730",
+    "name": "Fone Bluetooth",
+    "price": 299.99,
+    "stock": 20,
+    "active": true,
+    "category": {
+      "name": "acessorios",
+      "slug": "acessorios"
+    },
+    "createdAt": "2025-09-09T00:30:34.656Z",
+    "updatedAt": "2025-09-09T00:30:34.656Z"
+  }
+]

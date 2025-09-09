@@ -1,0 +1,22 @@
+ericdiniz :: GitHub/LAB_DAMD/lab03-microservices-nosql » curl http://localhost:3000/health
+{"service":"api-gateway","status":"healthy","services":{"user-service":{"url":"http://127.0.0.1:3001","healthy":true,"pid":10334},"product-service":{"url":"http://127.0.0.1:3002","healthy":true,"pid":8035}},"serviceCount":2}%
+ericdiniz :: GitHub/LAB_DAMD/lab03-microservices-nosql » curl http://localhost:3000/registry
+{"success":true,"services":{"user-service":{"url":"http://127.0.0.1:3001","healthy":true,"pid":10334},"product-service":{"url":"http://127.0.0.1:3002","healthy":true,"pid":8035}}}%
+ericdiniz :: GitHub/LAB_DAMD/lab03-microservices-nosql » curl -X POST http://localhost:3000/api/users/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "username": "testuser",
+    "password": "123456",
+    "firstName": "Test",
+    "lastName": "User"
+  }'
+{"success":true,"data":{"user":{"id":"ba5a557a-a041-4d1b-aea5-4c00bda8ed9d","email":"test@example.com","username":"testuser","firstName":"Test","lastName":"User","role":"user","status":"active","createdAt":"2025-09-09T00:44:29.218Z","updatedAt":"2025-09-09T00:44:29.218Z"},"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJhNWE1NTdhLWEwNDEtNGQxYi1hZWE1LTRjMDBiZGE4ZWQ5ZCIsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJuYW1lIjoidGVzdHVzZXIiLCJyb2xlIjoidXNlciIsImlhdCI6MTc1NzM3ODY2OSwiZXhwIjoxNzU3NDY1MDY5fQ.ChVs2Y-UgmOyzYJ0Uvxt3rUSH0hfE9e2lqo1xmwLhsw"}}%
+ericdiniz :: GitHub/LAB_DAMD/lab03-microservices-nosql » curl http://localhost:3000/api/products
+{"success":true,"data":[{"id":"5dbe1934-16f1-4566-aede-641238b0d730","name":"Fone Bluetooth","price":299.99,"stock":20,"active":true,"category":{"name":"acessorios","slug":"acessorios"},"createdAt":"2025-09-09T00:30:34.656Z","updatedAt":"2025-09-09T00:30:34.656Z"},{"id":"8da5593d-ac79-4df1-9988-c8e5b93a8464","name":"Notebook Gamer","price":3499.99,"stock":5,"active":true,"category":{"name":"eletronicos","slug":"eletronicos"},"createdAt":"2025-09-09T00:30:34.655Z","updatedAt":"2025-09-09T00:30:34.656Z"}],"pagination":{"page":1,"limit":10}}%
+ericdiniz :: GitHub/LAB_DAMD/lab03-microservices-nosql » curl "http://localhost:3000/api/search?q=smartphone"
+{"success":false,"message":"Endpoint não encontrado","service":"api-gateway"}%
+ericdiniz :: GitHub/LAB_DAMD/lab03-microservices-nosql » curl http://localhost:3000/api/dashboard \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJhNWE1NTdhLWEwNDEtNGQxYi1hZWE1LTRjMDBiZGE4ZWQ5ZCIsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJuYW1lIjoidGVzdHVzZXIiLCJyb2xlIjoidXNlciIsImlhdCI6MTc1NzM3ODY2OSwiZXhwIjoxNzU3NDY1MDY5fQ.ChVs2Y-UgmOyzYJ0Uvxt3rUSH0hfE9e2lqo1xmwLhsw"
+{"success":true,"users":{"service":"user-service","status":"healthy","users":3},"products":{"service":"product-service","status":"healthy","products":2}}%
+ericdiniz :: GitHub/LAB_DAMD/lab03-microservices-nosql »

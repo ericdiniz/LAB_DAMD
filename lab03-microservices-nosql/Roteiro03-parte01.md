@@ -3238,7 +3238,7 @@ curl http://localhost:3000/api/dashboard \
 
 ## **PASSO 8: Estrutura Final do Projeto**
 
-```
+```text
 lab03-microservices-nosql/
 ├── package.json                    # Scripts principais
 ├── client-demo.js                  # Cliente de demonstração
@@ -3543,7 +3543,7 @@ node reset-services.js status
 node reset-services.js clear
 ```
 
-2. Procedimento de Reset Completo
+## 2. Procedimento de Reset Completo
 
 1. **Pare todos os serviços** (Ctrl+C em todos os terminais)
 
@@ -3574,7 +3574,7 @@ node reset-services.js clear
 
 ---
 
-#### Scripts de Package.json
+### Scripts de Package.json
 
 Adicione estes scripts ao `package.json` principal:
 
@@ -3604,7 +3604,7 @@ curl http://127.0.0.1:3002/health  # Product Service
 curl http://127.0.0.1:3000/health  # API Gateway
 ```
 
-2. Verificar Service Registry
+## 2. Verificar Service Registry
 
 ```bash
 # Status do registry
@@ -3614,7 +3614,7 @@ curl http://127.0.0.1:3000/registry
 curl http://127.0.0.1:3000/debug/services
 ```
 
-3. Teste de Comunicação
+## 3. Teste de Comunicação
 
 ```bash
 # Acesso direto
@@ -3626,9 +3626,9 @@ curl http://127.0.0.1:3000/api/products
 
 ---
 
-#### Troubleshooting por Categoria
+### Troubleshooting por Categoria
 
-##### Problema: Service Registry vazio
+#### Problema: Service Registry vazio
 
 **Verificação:**
 
