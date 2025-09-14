@@ -1,16 +1,16 @@
 {
   "user-service": {
     "url": "http://127.0.0.1:3001",
-    "healthy": true,
-    "registeredAt": 1757385730917,
-    "pid": 42568,
-    "lastHealthCheck": 1757462304502
+    "healthy": false,
+    "registeredAt": 1757771870299,
+    "pid": 57317,
+    "lastHealthCheck": 1757881974818
   },
   "product-service": {
     "url": "http://127.0.0.1:3002",
-    "healthy": true,
-    "registeredAt": 1757385730792,
-    "pid": 42531,
-    "lastHealthCheck": 1757462304506
+    "healthy": false,
+    "registeredAt": 1757771870287,
+    "pid": 57326,
+    "lastHealthCheck": 1757881974820
   }
 }
