@@ -4,13 +4,13 @@
     "healthy": false,
     "registeredAt": 1757771870299,
     "pid": 57317,
-    "lastHealthCheck": 1757982928164
+    "lastHealthCheck": 1757983348178
   },
   "product-service": {
     "url": "http://127.0.0.1:3002",
     "healthy": false,
     "registeredAt": 1757771870287,
     "pid": 57326,
-    "lastHealthCheck": 1757982928166
+    "lastHealthCheck": 1757983348181
   }
 }
