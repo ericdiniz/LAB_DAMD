@@ -56,4 +56,5 @@ coverage-final.json
 .nyc_output/
 
 lab03-microservices-nosql/shared/*
+!lab03-microservices-nosql/shared/
 !lab03-microservices-nosql/shared/services-registry.json
