@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3a6237a9-5c84-4329-8816-71bb1175dd06",
+    "email": "admin@micro.com",
+    "username": "admin",
+    "password": "$2a$12$dptOzimZAJqFrt7h/0klG.B9SkOW35ssvOGTqWCBBFk/BzEbE5/e2",
+    "firstName": "Admin",
+    "lastName": "Root",
+    "role": "admin",
+    "status": "active",
+    "createdAt": "2025-09-09T00:30:35.203Z",
+    "updatedAt": "2025-09-09T00:30:35.204Z"
+  },
+  {
+    "id": "e0165e8e-f677-48e2-8e5f-6e666b6e20fe",
+    "email": "bench@micro.com",
+    "username": "bench",
+    "password": "$2a$12$bK.5LAfQnI2I2zQ7sJ7jE.vv7tCbdq2LTK7ffo7wSsyrD3WQUdWve",
+    "firstName": "Bench",
+    "lastName": "User",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2025-09-09T00:31:12.989Z",
+    "updatedAt": "2025-09-09T00:31:12.989Z"
+  },
+  {
+    "id": "ba5a557a-a041-4d1b-aea5-4c00bda8ed9d",
+    "email": "test@example.com",
+    "username": "testuser",
+    "password": "$2a$12$R0uaJe4brDiobhhcGFjuqeh3bTqhwbKtdp/lFEcugpcIhaf4M.B.G",
+    "firstName": "Test",
+    "lastName": "User",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2025-09-09T00:44:29.218Z",
+    "updatedAt": "2025-09-09T00:44:29.218Z"
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "description": "API Gateway para Microsserviços com Circuit Breaker - PUC Minas",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "health": "curl -s http://localhost:3000/health",
+    "registry": "curl -s http://localhost:3000/registry",
+    "dashboard": "curl -s http://localhost:3000/api/dashboard"
+  },
+  "engines": { "node": ">=16.0.0", "npm": ">=8.0.0" },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": { "nodemon": "^3.0.0" }
+}
