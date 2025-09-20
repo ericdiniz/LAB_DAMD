@@ -2,13 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 const JsonDatabase = require('../../shared/JsonDatabase');
-const authMiddleware = require('../../shared/authMiddleware');
+const registry = require('../../shared/serviceRegistry');
 
 const app = express();
 const port = process.env.PORT || 3003;
 
-const db = new JsonDatabase('lists');
+// registra no service registry
+registry.register('list-service', { url: `http://localhost:${port}` });
+
+// usa sempre services/list-service/database/lists.json
+const db = new JsonDatabase(path.join(__dirname, 'database'), 'lists');
 
 app.use(helmet());
 app.use(cors());
@@ -20,90 +25,81 @@ app.get('/health', (req, res) => {
     res.json({ service: 'list-service', status: 'healthy' });
 });
 
-// listar todas as listas do usuário autenticado
-app.get('/lists', authMiddleware, async (req, res) => {
-    const lists = await db.find({ userId: req.user.id });
+// listar todas as listas
+app.get('/lists', async (req, res) => {
+    const lists = await db.find({});
     res.json({ success: true, data: lists });
 });
 
 // buscar lista específica
-app.get('/lists/:id', authMiddleware, async (req, res) => {
+app.get('/lists/:id', async (req, res) => {
     const list = await db.findById(req.params.id);
-    if (!list || list.userId !== req.user.id) {
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-    }
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
     res.json({ success: true, data: list });
 });
 
 // criar lista
-app.post('/lists', authMiddleware, async (req, res) => {
+app.post('/lists', async (req, res) => {
     const { name, description } = req.body;
-    const list = await db.insert({
-        userId: req.user.id,
+    const list = await db.create({
         name,
         description,
         status: 'active',
         items: [],
-        summary: { totalItems: 0, purchasedItems: 0, estimatedTotal: 0 },
-        createdAt: new Date(),
-        updatedAt: new Date()
+        summary: { totalItems: 0, purchasedItems: 0, estimatedTotal: 0 }
     });
     res.json({ success: true, data: list });
 });
 
 // atualizar lista
-app.put('/lists/:id', authMiddleware, async (req, res) => {
+app.put('/lists/:id', async (req, res) => {
     const { name, description } = req.body;
     const list = await db.findById(req.params.id);
-    if (!list || list.userId !== req.user.id) {
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-    }
-    const updated = await db.update(req.params.id, { name, description, updatedAt: new Date() });
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
+    const updated = await db.update(req.params.id, { name, description });
     res.json({ success: true, data: updated });
 });
 
 // deletar lista
-app.delete('/lists/:id', authMiddleware, async (req, res) => {
+app.delete('/lists/:id', async (req, res) => {
     const list = await db.findById(req.params.id);
-    if (!list || list.userId !== req.user.id) {
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-    }
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
     await db.delete(req.params.id);
     res.json({ success: true });
 });
 
-// adicionar item na lista
-app.post('/lists/:id/items', authMiddleware, async (req, res) => {
-    const { itemId, quantity, notes } = req.body;
+// adicionar item
+app.post('/lists/:id/items', async (req, res) => {
+    const { itemId, itemName, quantity, unit, estimatedPrice, notes } = req.body;
     const list = await db.findById(req.params.id);
-    if (!list || list.userId !== req.user.id) {
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-    }
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
+
     const newItem = {
         itemId,
-        itemName: req.body.itemName || '',
+        itemName,
         quantity,
-        unit: req.body.unit || '',
-        estimatedPrice: req.body.estimatedPrice || 0,
+        unit,
+        estimatedPrice,
         purchased: false,
-        notes: notes || '',
+        notes,
         addedAt: new Date()
     };
     list.items.push(newItem);
+
     list.summary.totalItems = list.items.length;
     list.summary.purchasedItems = list.items.filter(i => i.purchased).length;
     list.summary.estimatedTotal = list.items.reduce((acc, i) => acc + (i.estimatedPrice * i.quantity), 0);
+
     const updated = await db.update(req.params.id, list);
     res.json({ success: true, data: updated });
 });
 
-// atualizar item na lista
-app.put('/lists/:id/items/:itemId', authMiddleware, async (req, res) => {
+// atualizar item
+app.put('/lists/:id/items/:itemId', async (req, res) => {
     const { quantity, purchased, notes } = req.body;
     const list = await db.findById(req.params.id);
-    if (!list || list.userId !== req.user.id) {
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-    }
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
+
     const item = list.items.find(i => i.itemId === req.params.itemId);
     if (!item) return res.status(404).json({ success: false, message: 'Item não encontrado' });
 
@@ -118,37 +114,33 @@ app.put('/lists/:id/items/:itemId', authMiddleware, async (req, res) => {
     res.json({ success: true, data: updated });
 });
 
-// remover item da lista
-app.delete('/lists/:id/items/:itemId', authMiddleware, async (req, res) => {
+// deletar item
+app.delete('/lists/:id/items/:itemId', async (req, res) => {
     const list = await db.findById(req.params.id);
-    if (!list || list.userId !== req.user.id) {
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-    }
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
+
     list.items = list.items.filter(i => i.itemId !== req.params.itemId);
     list.summary.totalItems = list.items.length;
     list.summary.purchasedItems = list.items.filter(i => i.purchased).length;
     list.summary.estimatedTotal = list.items.reduce((acc, i) => acc + (i.estimatedPrice * i.quantity), 0);
+
     const updated = await db.update(req.params.id, list);
     res.json({ success: true, data: updated });
 });
 
-// resumo da lista
-app.get('/lists/:id/summary', authMiddleware, async (req, res) => {
+// resumo
+app.get('/lists/:id/summary', async (req, res) => {
     const list = await db.findById(req.params.id);
-    if (!list || list.userId !== req.user.id) {
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-    }
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
     res.json({ success: true, data: list.summary });
 });
 
-// 🔎 busca dentro das listas (SEM autenticação)
+// busca
 app.get('/search', async (req, res) => {
     const q = req.query.q || '';
     if (!q) return res.status(400).json({ success: false, message: 'Termo de busca obrigatório' });
-    const regex = new RegExp(q, 'i');
-    const lists = await db.find({});
-    const filtered = lists.filter(l => regex.test(l.name) || regex.test(l.description));
-    res.json({ success: true, data: filtered });
+    const results = await db.search(q, ['name', 'description']);
+    res.json({ success: true, data: results });
 });
 
 app.listen(port, () => {

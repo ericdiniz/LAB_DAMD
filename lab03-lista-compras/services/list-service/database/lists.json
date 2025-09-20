@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "id": "f598cfcd-48f5-435a-b976-6dd54e129d02",
+    "name": "Lista do Mercado",
+    "description": "Compras da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "111",
+        "itemName": "Arroz Cateto Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 12.5,
+        "purchased": false,
+        "notes": "Integral orgânico",
+        "addedAt": "2025-09-20T22:53:26.355Z"
+      },
+      {
+        "itemId": "222",
+        "itemName": "Feijão Preto",
+        "quantity": 1,
+        "unit": "kg",
+        "estimatedPrice": 8.9,
+        "purchased": false,
+        "notes": "Safra nova",
+        "addedAt": "2025-09-20T22:53:31.262Z"
+      },
+      {
+        "itemId": "333",
+        "itemName": "Café Torrado e Moído",
+        "quantity": 1,
+        "unit": "pacote",
+        "estimatedPrice": 15,
+        "purchased": false,
+        "notes": "Extra forte",
+        "addedAt": "2025-09-20T22:53:35.918Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 3,
+      "purchasedItems": 0,
+      "estimatedTotal": 48.9
+    },
+    "createdAt": "2025-09-20T22:53:08.773Z",
+    "updatedAt": "2025-09-20T22:53:35.918Z"
+  }
+]

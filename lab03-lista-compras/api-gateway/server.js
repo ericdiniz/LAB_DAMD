@@ -118,7 +118,7 @@ class APIGateway {
       path = original.replace('/api/items', '') || '/items';
     }
     if (serviceName === 'list-service') {
-      path = original.replace('/api/lists', '') || '/lists';
+      path = original.replace('/api/lists', '/lists');
     }
     if (!path.startsWith('/')) path = '/' + path;
     return path;
