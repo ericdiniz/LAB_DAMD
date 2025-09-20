@@ -47,7 +47,7 @@ class APIGateway {
     if (serviceName === 'product-service') {
       if (original.startsWith('/api/products')) {
         return original.replace('/api/products', '/products');
-      }
+      } c
     }
     return original;
   }
