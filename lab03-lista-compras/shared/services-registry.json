@@ -4,20 +4,20 @@
     "healthy": true,
     "registeredAt": 1758374956339,
     "pid": 77159,
-    "lastHealthCheck": 1758380177287
+    "lastHealthCheck": 1758388457718
   },
   "product-service": {
     "url": "http://127.0.0.1:3002",
     "healthy": true,
     "registeredAt": 1757771870287,
     "pid": 57326,
-    "lastHealthCheck": 1758380177292
+    "lastHealthCheck": 1758388457726
   },
   "item-service": {
     "url": "http://127.0.0.1:3002",
     "healthy": true,
     "registeredAt": 1758379554035,
     "pid": 27967,
-    "lastHealthCheck": 1758380177294
+    "lastHealthCheck": 1758388457729
   }
 }
