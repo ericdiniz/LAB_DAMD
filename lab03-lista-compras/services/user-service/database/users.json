@@ -230,5 +230,51 @@
     "status": "active",
     "createdAt": "2025-09-20T14:36:01.515Z",
     "updatedAt": "2025-09-20T14:36:01.515Z"
+  },
+  {
+    "id": "d35dcc13-bf5b-43a6-96a5-b7b922603b71",
+    "email": "demo1758408993333@teste.com",
+    "username": "demo1758408993333",
+    "password": "$2a$12$fsyIqRAr.FLMaT6obB8KnemWDGJMZk.rwPdnKTHoiY.GT8oWkjZWi",
+    "firstName": "Demo",
+    "lastName": "User",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2025-09-20T22:56:33.828Z",
+    "updatedAt": "2025-09-20T22:56:33.828Z"
+  },
+  {
+    "id": "e76e90ac-f9d3-4545-a235-952d91a2d0fc",
+    "email": "demoed2529@teste.com",
+    "username": "demoed2529",
+    "password": "$2a$12$.XH.c/lMxsoye.nJ.zyLQOgNbrDpMumDmM5uAFINQEml5xTGnrZCm",
+    "firstName": "Demo",
+    "lastName": "User",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2025-09-20T22:57:35.568Z",
+    "updatedAt": "2025-09-20T22:57:35.568Z"
+  },
+  {
+    "id": "837192d6-6109-4a91-a7df-b4718d780cb0",
+    "email": "video@teste.com",
+    "username": "demo",
+    "password": "$2a$12$lAgx9tCaWgfwfVvQ3Arr7udvDnNl4yCb.s/LdQc8dgRCsTnayJQTK",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2025-09-20T23:06:10.343Z",
+    "updatedAt": "2025-09-20T23:06:10.343Z"
+  },
+  {
+    "id": "5ec53082-9830-4a36-aeaf-945e956bf91d",
+    "email": "demo447dc9@teste.com",
+    "username": "demo447dc9",
+    "password": "$2a$12$Rn7d64fNB3p/bgY1m1yqpOuDylEIamk8au4KW61qcxhkC4/Yk6HJm",
+    "firstName": "Demo",
+    "lastName": "User",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2025-09-20T23:17:12.415Z",
+    "updatedAt": "2025-09-20T23:17:12.415Z"
   }
 ]
