@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 const axios = require('axios');
 
 const JsonDatabase = require('../../shared/JsonDatabase');
@@ -18,54 +18,23 @@ app.use(express.json());
 
 const db = new JsonDatabase(path.join(__dirname, 'database'), 'lists');
 
-// --- Middleware de autenticação (valida no user-service) ---
+// middleware de auth validando no user-service
 async function auth(req, res, next) {
     const h = req.header('Authorization') || '';
-    if (!h.startsWith('Bearer '))
-        return res.status(401).json({ success: false, message: 'token ausente' });
-
+    if (!h.startsWith('Bearer ')) return res.status(401).json({ success: false, message: 'token ausente' });
     try {
         const user = registry.discover('user-service');
-        const r = await axios.post(
-            `${user.url}/auth/validate`,
-            { token: h.replace('Bearer ', '') },
-            { timeout: 4000, family: 4 }
-        );
-        if (r.data?.success) {
-            req.user = r.data.data.user;
-            return next();
-        }
+        const r = await axios.post(`${user.url}/auth/validate`, { token: h.replace('Bearer ', '') }, { timeout: 4000, family: 4 });
+        if (r.data?.success) { req.user = r.data.data.user; return next(); }
         return res.status(401).json({ success: false, message: 'token inválido' });
-    } catch (e) {
-        return res
-            .status(503)
-            .json({ success: false, message: 'auth indisponível' });
-    }
+    } catch (e) { return res.status(503).json({ success: false, message: 'auth indisponível' }); }
 }
 
-// --- Função utilitária: calcular resumo ---
-function calcularResumo(lista) {
-    const totalItems = lista.items.length;
-    const purchasedItems = lista.items.filter((i) => i.purchased).length;
-    const estimatedTotal = lista.items.reduce(
-        (acc, i) => acc + (i.estimatedPrice || 0) * (i.quantity || 1),
-        0
-    );
-    lista.summary = { totalItems, purchasedItems, estimatedTotal };
-    return lista;
-}
-
-// --- Endpoints ---
-
-// Criar nova lista
+// cria nova lista
 app.post('/lists', auth, async (req, res) => {
     const { name, description } = req.body;
-    if (!name)
-        return res
-            .status(400)
-            .json({ success: false, message: 'nome obrigatório' });
-
-    const nova = {
+    if (!name) return res.status(400).json({ success: false, message: 'nome obrigatório' });
+    const newList = {
         id: uuidv4(),
         userId: req.user.id,
         name,
@@ -74,132 +43,136 @@ app.post('/lists', auth, async (req, res) => {
         items: [],
         summary: { totalItems: 0, purchasedItems: 0, estimatedTotal: 0 },
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
     };
-    await db.create(nova);
-    res.status(201).json({ success: true, data: nova });
+    const created = await db.create(newList);
+    res.status(201).json({ success: true, data: created });
 });
 
-// Listar listas do usuário
+// listar listas do usuário
 app.get('/lists', auth, async (req, res) => {
-    const listas = await db.find({ userId: req.user.id });
-    res.json({ success: true, data: listas });
+    const lists = await db.find({ userId: req.user.id });
+    res.json({ success: true, data: lists });
 });
 
-// Buscar lista específica
+// buscar lista específica
 app.get('/lists/:id', auth, async (req, res) => {
-    const lista = (await db.find({ id: req.params.id, userId: req.user.id }))[0];
-    if (!lista)
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-    res.json({ success: true, data: lista });
+    const lists = await db.find({ id: req.params.id, userId: req.user.id });
+    const list = lists[0];
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
+    res.json({ success: true, data: list });
 });
 
-// Atualizar lista
+// atualizar lista
 app.put('/lists/:id', auth, async (req, res) => {
     const { name, description, status } = req.body;
-    const lista = (await db.find({ id: req.params.id, userId: req.user.id }))[0];
-    if (!lista)
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-
-    const updates = {};
-    if (name !== undefined) updates.name = name;
-    if (description !== undefined) updates.description = description;
-    if (status !== undefined) updates.status = status;
-    updates.updatedAt = new Date();
-
-    const updated = await db.update(req.params.id, updates);
+    const lists = await db.find({ id: req.params.id, userId: req.user.id });
+    const list = lists[0];
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
+    const updated = await db.update(req.params.id, {
+        ...(name && { name }),
+        ...(description && { description }),
+        ...(status && { status }),
+        updatedAt: new Date()
+    });
     res.json({ success: true, data: updated });
 });
 
-// Deletar lista
+// deletar lista
 app.delete('/lists/:id', auth, async (req, res) => {
-    const lista = (await db.find({ id: req.params.id, userId: req.user.id }))[0];
-    if (!lista)
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-
+    const lists = await db.find({ id: req.params.id, userId: req.user.id });
+    if (!lists[0]) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
     await db.delete(req.params.id);
-    res.json({ success: true, message: 'Lista deletada' });
+    res.json({ success: true });
 });
 
-// Adicionar item à lista
+// adicionar item à lista
 app.post('/lists/:id/items', auth, async (req, res) => {
     const { itemId, quantity, notes } = req.body;
-    const lista = (await db.find({ id: req.params.id, userId: req.user.id }))[0];
-    if (!lista)
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
+    if (!itemId || !quantity) return res.status(400).json({ success: false, message: 'itemId e quantidade obrigatórios' });
+
+    const lists = await db.find({ id: req.params.id, userId: req.user.id });
+    const list = lists[0];
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
 
     try {
         const itemService = registry.discover('item-service');
         const r = await axios.get(`${itemService.url}/items/${itemId}`);
-        if (!r.data?.success)
-            return res.status(404).json({ success: false, message: 'Item não encontrado' });
+        if (!r.data.success) return res.status(404).json({ success: false, message: 'Item não encontrado' });
 
-        const item = r.data.data;
-        const novoItem = {
+        const itemData = r.data.data;
+        const newItem = {
             itemId,
-            itemName: item.name,
-            quantity: quantity || 1,
-            unit: item.unit,
-            estimatedPrice: item.averagePrice,
+            itemName: itemData.name,
+            quantity,
+            unit: itemData.unit || '',
+            estimatedPrice: (itemData.averagePrice || 0) * quantity,
             purchased: false,
             notes: notes || '',
-            addedAt: new Date(),
+            addedAt: new Date()
         };
-        lista.items.push(novoItem);
-        calcularResumo(lista);
-        await db.update(lista.id, lista);
-        res.status(201).json({ success: true, data: lista });
+
+        list.items.push(newItem);
+        list.summary.totalItems = list.items.length;
+        list.summary.purchasedItems = list.items.filter(i => i.purchased).length;
+        list.summary.estimatedTotal = list.items.reduce((sum, i) => sum + i.estimatedPrice, 0);
+        list.updatedAt = new Date();
+
+        const updated = await db.update(req.params.id, list);
+        res.status(201).json({ success: true, data: updated });
     } catch (e) {
-        return res
-            .status(503)
-            .json({ success: false, message: 'item-service indisponível' });
+        return res.status(503).json({ success: false, message: 'item-service indisponível' });
     }
 });
 
-// Atualizar item na lista
+// atualizar item na lista
 app.put('/lists/:id/items/:itemId', auth, async (req, res) => {
-    const lista = (await db.find({ id: req.params.id, userId: req.user.id }))[0];
-    if (!lista)
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-
-    const item = lista.items.find((i) => i.itemId === req.params.itemId);
-    if (!item)
-        return res.status(404).json({ success: false, message: 'Item não encontrado na lista' });
-
     const { quantity, purchased, notes } = req.body;
+    const lists = await db.find({ id: req.params.id, userId: req.user.id });
+    const list = lists[0];
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
+
+    const item = list.items.find(i => i.itemId === req.params.itemId);
+    if (!item) return res.status(404).json({ success: false, message: 'Item não encontrado na lista' });
+
     if (quantity !== undefined) item.quantity = quantity;
     if (purchased !== undefined) item.purchased = purchased;
     if (notes !== undefined) item.notes = notes;
-    lista.updatedAt = new Date();
-    calcularResumo(lista);
-    await db.update(lista.id, lista);
-    res.json({ success: true, data: lista });
+    item.estimatedPrice = (item.estimatedPrice / item.quantity) * item.quantity; // recalcula
+    list.summary.totalItems = list.items.length;
+    list.summary.purchasedItems = list.items.filter(i => i.purchased).length;
+    list.summary.estimatedTotal = list.items.reduce((sum, i) => sum + i.estimatedPrice, 0);
+    list.updatedAt = new Date();
+
+    const updated = await db.update(req.params.id, list);
+    res.json({ success: true, data: updated });
 });
 
-// Remover item da lista
+// remover item da lista
 app.delete('/lists/:id/items/:itemId', auth, async (req, res) => {
-    const lista = (await db.find({ id: req.params.id, userId: req.user.id }))[0];
-    if (!lista)
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
+    const lists = await db.find({ id: req.params.id, userId: req.user.id });
+    const list = lists[0];
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
 
-    lista.items = lista.items.filter((i) => i.itemId !== req.params.itemId);
-    lista.updatedAt = new Date();
-    calcularResumo(lista);
-    await db.update(lista.id, lista);
-    res.json({ success: true, data: lista });
+    list.items = list.items.filter(i => i.itemId !== req.params.itemId);
+    list.summary.totalItems = list.items.length;
+    list.summary.purchasedItems = list.items.filter(i => i.purchased).length;
+    list.summary.estimatedTotal = list.items.reduce((sum, i) => sum + i.estimatedPrice, 0);
+    list.updatedAt = new Date();
+
+    const updated = await db.update(req.params.id, list);
+    res.json({ success: true, data: updated });
 });
 
-// Resumo da lista
+// resumo da lista
 app.get('/lists/:id/summary', auth, async (req, res) => {
-    const lista = (await db.find({ id: req.params.id, userId: req.user.id }))[0];
-    if (!lista)
-        return res.status(404).json({ success: false, message: 'Lista não encontrada' });
-
-    calcularResumo(lista);
-    res.json({ success: true, data: lista.summary });
+    const lists = await db.find({ id: req.params.id, userId: req.user.id });
+    const list = lists[0];
+    if (!list) return res.status(404).json({ success: false, message: 'Lista não encontrada' });
+    res.json({ success: true, data: list.summary });
 });
 
-// Health
+// health check
 app.get('/health', async (req, res) => {
     res.json({ service: 'list-service', status: 'healthy', count: await db.count() });
 });
