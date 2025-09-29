@@ -2,22 +2,22 @@
   "user-service": {
     "url": "http://127.0.0.1:3001",
     "healthy": true,
-    "registeredAt": 1758405753426,
-    "pid": 58478,
-    "lastHealthCheck": 1758410608291
+    "registeredAt": 1758584080190,
+    "pid": 54655,
+    "lastHealthCheck": 1758586230255
   },
   "item-service": {
     "url": "http://127.0.0.1:3002",
     "healthy": true,
-    "registeredAt": 1758405865255,
-    "pid": 60515,
-    "lastHealthCheck": 1758410608298
+    "registeredAt": 1758584066918,
+    "pid": 53385,
+    "lastHealthCheck": 1758586230264
   },
   "list-service": {
     "url": "http://localhost:3003",
     "healthy": true,
-    "registeredAt": 1758408715361,
-    "pid": 1473,
-    "lastHealthCheck": 1758410608302
+    "registeredAt": 1758584074047,
+    "pid": 54078,
+    "lastHealthCheck": 1758586230269
   }
 }

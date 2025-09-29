@@ -303,5 +303,30 @@
     },
     "createdAt": "2025-09-20T23:18:23.575Z",
     "updatedAt": "2025-09-20T23:18:23.616Z"
+  },
+  {
+    "id": "de2f16b6-3520-4c95-8e1b-f8a77e916ec3",
+    "name": "Compras Semanais",
+    "description": "Itens básicos da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+        "itemName": "Arroz Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 7.99,
+        "purchased": false,
+        "notes": "Adicionado pelo client-demo",
+        "addedAt": "2025-09-22T23:41:08.782Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 1,
+      "purchasedItems": 0,
+      "estimatedTotal": 15.98
+    },
+    "createdAt": "2025-09-22T23:41:08.774Z",
+    "updatedAt": "2025-09-22T23:41:08.782Z"
   }
 ]
