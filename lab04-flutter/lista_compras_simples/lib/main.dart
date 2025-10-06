@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,7 +36,9 @@ class _PaginaInicialState extends State<PaginaInicial> {
   TextEditingController controladorBusca = TextEditingController();
   String categoriaSelecionada = 'Frutas';
   String filtroCategoria = 'Todas';
+  String filtroStatus = 'Todos';
   List<Map<String, dynamic>> itensFiltrados = [];
+  Timer? _debounce;
 
   final List<String> categorias = ['Frutas', 'Limpeza', 'Bebidas', 'Outros'];
   final List<String> categoriasFiltro = [
@@ -48,46 +53,41 @@ class _PaginaInicialState extends State<PaginaInicial> {
   void initState() {
     super.initState();
     carregarLista();
-    controladorBusca.addListener(_filtrarItens);
+    // Debounce manual para busca
+    controladorBusca.addListener(() {
+      if (_debounce?.isActive ?? false) _debounce?.cancel();
+      _debounce = Timer(const Duration(milliseconds: 300), () {
+        _filtrarItens();
+      });
+    });
   }
 
   Future<void> salvarLista() async {
     final prefs = await SharedPreferences.getInstance();
-    // Salvar como lista de strings JSON
-    final List<String> itensJson = itensCompra
-        .map(
-          (item) =>
-              '{"nome":"${item['nome']}","comprado":${item['comprado']},"categoria":"${item['categoria']}"}',
-        )
-        .toList();
-    await prefs.setStringList('itensCompra', itensJson);
+    // Salvar como JSON
+    final String jsonString = jsonEncode(itensCompra);
+    await prefs.setString('itensCompra', jsonString);
   }
 
   Future<void> carregarLista() async {
     final prefs = await SharedPreferences.getInstance();
-    final itensJson = prefs.getStringList('itensCompra');
-    if (itensJson != null) {
-      final List<Map<String, dynamic>> itensCarregados = itensJson.map((
-        jsonString,
-      ) {
-        final Map<String, dynamic> mapa = {};
-        // parse manual JSON string (simple format)
-        final regNome = RegExp(r'"nome":"(.*?)"');
-        final regComprado = RegExp(r'"comprado":(true|false)');
-        final regCategoria = RegExp(r'"categoria":"(.*?)"');
-        final nome = regNome.firstMatch(jsonString)?.group(1) ?? '';
-        final comprado = regComprado.firstMatch(jsonString)?.group(1) == 'true';
-        final categoria =
-            regCategoria.firstMatch(jsonString)?.group(1) ?? 'Outros';
-        mapa['nome'] = nome;
-        mapa['comprado'] = comprado;
-        mapa['categoria'] = categoria;
-        return mapa;
-      }).toList();
-      setState(() {
-        itensCompra = itensCarregados;
-        _filtrarItens();
-      });
+    final jsonString = prefs.getString('itensCompra');
+    if (jsonString != null && jsonString.isNotEmpty) {
+      try {
+        final List<dynamic> decoded = jsonDecode(jsonString);
+        final List<Map<String, dynamic>> itensCarregados = decoded
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+        setState(() {
+          itensCompra = itensCarregados;
+          _filtrarItens();
+        });
+      } catch (e) {
+        setState(() {
+          itensCompra = [];
+          _filtrarItens();
+        });
+      }
     }
   }
 
@@ -97,42 +97,52 @@ class _PaginaInicialState extends State<PaginaInicial> {
       itensFiltrados = itensCompra.where((item) {
         final nome = item['nome'].toString().toLowerCase();
         final categoria = item['categoria'].toString();
+        final comprado = item['comprado'] == true;
         final bool bateBusca = nome.contains(busca);
         final bool bateCategoria =
             filtroCategoria == 'Todas' || categoria == filtroCategoria;
-        return bateBusca && bateCategoria;
+        final bool bateStatus =
+            filtroStatus == 'Todos' ||
+            (filtroStatus == 'Comprados' && comprado) ||
+            (filtroStatus == 'Pendentes' && !comprado);
+        return bateBusca && bateCategoria && bateStatus;
       }).toList();
     });
   }
 
   void adicionarItem() {
     String novoItem = controladorTexto.text.trim();
-    if (novoItem.isNotEmpty) {
-      bool existe = itensCompra.any(
-        (item) =>
-            item['nome'].toString().toLowerCase() == novoItem.toLowerCase() &&
-            item['categoria'] == categoriaSelecionada,
-      );
-      if (existe) {
-        _mostrarMensagem('Este item já está na sua lista!');
-        return;
-      }
-      final novoMapa = {
-        'nome': novoItem,
-        'comprado': false,
-        'categoria': categoriaSelecionada,
-      };
-      setState(() {
-        itensCompra.add(novoMapa);
-        _filtrarItens();
-        controladorTexto.clear();
-        // Animar inserção na lista filtrada
-        final index = itensFiltrados.length - 1;
-        _listKey.currentState?.insertItem(index);
-      });
-      salvarLista();
-      _mostrarMensagem('Item "$novoItem" adicionado!');
+    if (novoItem.isEmpty) return;
+
+    bool existe = itensCompra.any(
+      (item) =>
+          item['nome'].toString().toLowerCase() == novoItem.toLowerCase() &&
+          item['categoria'] == categoriaSelecionada,
+    );
+    if (existe) {
+      _mostrarMensagem('Este item já está na sua lista!');
+      return;
     }
+
+    final novoMapa = {
+      'nome': novoItem,
+      'comprado': false,
+      'categoria': categoriaSelecionada,
+    };
+
+    setState(() {
+      itensCompra.add(novoMapa);
+      _filtrarItens();
+      controladorTexto.clear();
+      // Animar inserção na lista filtrada
+      final index = itensFiltrados.length - 1;
+      _listKey.currentState?.insertItem(
+        index,
+        duration: const Duration(milliseconds: 400),
+      );
+    });
+    salvarLista();
+    _mostrarMensagem('Item "$novoItem" adicionado!');
   }
 
   void removerItem(int indiceFiltrado) {
@@ -143,11 +153,14 @@ class _PaginaInicialState extends State<PaginaInicial> {
       _filtrarItens();
       _listKey.currentState?.removeItem(
         indiceFiltrado,
-        (context, animation) => SizeTransition(
-          sizeFactor: animation,
-          child: _construirItem(itemRemovido, indiceFiltrado, animation),
+        (context, animation) => FadeTransition(
+          opacity: animation,
+          child: SizeTransition(
+            sizeFactor: animation,
+            child: _construirItem(itemRemovido, indiceFiltrado, animation),
+          ),
         ),
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 350),
       );
     });
     salvarLista();
@@ -256,9 +269,18 @@ class _PaginaInicialState extends State<PaginaInicial> {
           item['categoria'],
           style: const TextStyle(fontSize: 12, color: Colors.grey),
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete, color: Colors.red),
-          onPressed: () => mostrarConfirmacaoRemocao(indice),
+        trailing: Wrap(
+          spacing: 8,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.blue),
+              onPressed: () => _editarItemDialog(item, indice),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => mostrarConfirmacaoRemocao(indice),
+            ),
+          ],
         ),
       ),
     );
@@ -266,6 +288,62 @@ class _PaginaInicialState extends State<PaginaInicial> {
       return SizeTransition(sizeFactor: animation, child: conteudo);
     }
     return conteudo;
+  }
+
+  void _editarItemDialog(Map<String, dynamic> item, int indiceFiltrado) {
+    final TextEditingController editarController = TextEditingController(
+      text: item['nome'],
+    );
+    String categoriaAtual = item['categoria'] ?? categorias.first;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar Item'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: editarController,
+                decoration: const InputDecoration(labelText: 'Nome'),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: categoriaAtual,
+                items: categorias
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .toList(),
+                onChanged: (v) => categoriaAtual = v ?? categoriaAtual,
+                decoration: const InputDecoration(labelText: 'Categoria'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                final novoNome = editarController.text.trim();
+                if (novoNome.isEmpty) return;
+                final itemOriginal = itensFiltrados[indiceFiltrado];
+                final idxOriginal = itensCompra.indexOf(itemOriginal);
+                setState(() {
+                  itensCompra[idxOriginal]['nome'] = novoNome;
+                  itensCompra[idxOriginal]['categoria'] = categoriaAtual;
+                  _filtrarItens();
+                });
+                salvarLista();
+                Navigator.of(context).pop();
+                _mostrarMensagem('Item atualizado');
+              },
+              child: const Text('Salvar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _criarEstatistica(
@@ -296,11 +374,52 @@ class _PaginaInicialState extends State<PaginaInicial> {
       _mostrarMensagem('A lista está vazia para compartilhar.');
       return;
     }
-    final StringBuffer buffer = StringBuffer();
-    for (var item in itensCompra) {
-      buffer.writeln('${item['nome']} (${item['categoria']})');
-    }
-    Share.share(buffer.toString(), subject: 'Minha Lista de Compras');
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.text_snippet),
+                title: const Text('Compartilhar como texto'),
+                onTap: () {
+                  final StringBuffer buffer = StringBuffer();
+                  for (var item in itensCompra) {
+                    buffer.writeln('${item['nome']} (${item['categoria']})');
+                  }
+                  Share.share(
+                    buffer.toString(),
+                    subject: 'Minha Lista de Compras',
+                  );
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.table_chart),
+                title: const Text('Compartilhar como CSV'),
+                onTap: () {
+                  final StringBuffer csv = StringBuffer();
+                  csv.writeln('nome,categoria,comprado');
+                  for (var item in itensCompra) {
+                    final nome = item['nome'].toString().replaceAll(',', '');
+                    final categoria = item['categoria'].toString();
+                    final comprado = item['comprado'] ? '1' : '0';
+                    csv.writeln('$nome,$categoria,$comprado');
+                  }
+                  Share.share(
+                    csv.toString(),
+                    subject: 'Lista de Compras (CSV)',
+                  );
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -433,8 +552,35 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   ),
                 ),
                 const SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
-                  flex: 2,
+                  flex: 1,
+                  child: DropdownButtonFormField<String>(
+                    value: filtroStatus,
+                    items: ['Todos', 'Comprados', 'Pendentes']
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                        .toList(),
+                    onChanged: (valor) {
+                      if (valor != null) {
+                        setState(() {
+                          filtroStatus = valor;
+                          _filtrarItens();
+                        });
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Status',
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 1,
                   child: DropdownButtonFormField<String>(
                     value: filtroCategoria,
                     items: categoriasFiltro
@@ -449,7 +595,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                       }
                     },
                     decoration: const InputDecoration(
-                      labelText: 'Filtrar por categoria',
+                      labelText: 'Categoria',
                       border: OutlineInputBorder(),
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 12,
