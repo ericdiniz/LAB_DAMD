@@ -1,6 +1,0 @@
-Menu de Filtros
-===============
-
-Captura utilizada: telas/simulator_screenshot_225477C9-1243-4E38-ACE0-FE13B6C8D91D.png
-
-Descrição rápida: tela "Minhas Tarefas" com o popup aberto exibindo as opções de ordenação/filtro (Ordenar por Data, Prioridade, Título). Use esta imagem para comprovar o item "Menu de filtros" do entregável.
