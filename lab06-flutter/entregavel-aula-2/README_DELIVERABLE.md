@@ -2,9 +2,9 @@
 
 Esta pasta contém os artefatos que compõem a entrega do Laboratório 2:
 
-- `relatorio_tecnico.md` — Relatório técnico de 1 página.
-- `video_script.md` — Roteiro para gravação do vídeo de demonstração (2–3 minutos).
-- `screenshots_checklist.md` — Checklist com nomes de arquivos e instruções de captura.
+- Relatório técnico de 1 página.
+- vídeo de demonstração (2–3 minutos).
+- Prints das telas
 
 Como rodar o projeto localmente
 1. Abra o terminal na pasta do projeto:
