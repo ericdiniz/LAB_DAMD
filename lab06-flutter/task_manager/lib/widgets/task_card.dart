@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../models/category.dart';
 import '../models/task.dart';
 
 class TaskCard extends StatelessWidget {
@@ -59,8 +60,13 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+    final createdAtFormat = DateFormat('dd/MM/yyyy HH:mm');
+    final dueDateFormat = DateFormat('dd/MM/yyyy');
     final priorityColor = _priorityColor();
+    final category = Categories.byId(task.categoryId);
+    final now = DateTime.now();
+    final isOverdue =
+        !task.completed && task.dueDate != null && task.dueDate!.isBefore(now);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -68,7 +74,9 @@ class TaskCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: task.completed ? Colors.grey.shade300 : priorityColor,
+          color: isOverdue
+              ? Colors.redAccent
+              : (task.completed ? Colors.grey.shade300 : priorityColor),
           width: 2,
         ),
       ),
@@ -91,6 +99,28 @@ class TaskCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (isOverdue)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              size: 16,
+                              color: Colors.redAccent,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'Tarefa vencida',
+                              style: TextStyle(
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     Text(
                       task.title,
                       style: TextStyle(
@@ -153,20 +183,86 @@ class TaskCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: Colors.grey.shade600,
+                        if (category != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: category.color.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  category.icon,
+                                  size: 14,
+                                  color: category.color,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  category.name,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: category.color,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (category != null) const SizedBox(width: 12),
+                      ],
+                    ),
+                    if (task.dueDate != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.event,
+                              size: 14,
+                              color: isOverdue
+                                  ? Colors.redAccent
+                                  : Colors.grey.shade600,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Vencimento: ${dueDateFormat.format(task.dueDate!)}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isOverdue
+                                    ? Colors.redAccent
+                                    : Colors.grey.shade600,
+                                fontWeight: isOverdue
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          dateFormat.format(task.createdAt),
-                          style: TextStyle(
-                            fontSize: 12,
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            size: 14,
                             color: Colors.grey.shade600,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          Text(
+                            createdAtFormat.format(task.createdAt),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

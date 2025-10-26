@@ -21,8 +21,9 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -34,9 +35,18 @@ class DatabaseService {
         description TEXT,
         completed INTEGER NOT NULL,
         priority TEXT NOT NULL,
-        createdAt TEXT NOT NULL
+        createdAt TEXT NOT NULL,
+        dueDate TEXT,
+        categoryId TEXT
       )
     ''');
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE tasks ADD COLUMN dueDate TEXT');
+      await db.execute('ALTER TABLE tasks ADD COLUMN categoryId TEXT');
+    }
   }
 
   Future<Task> create(Task task) async {

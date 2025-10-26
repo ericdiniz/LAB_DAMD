@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/category.dart';
 import '../models/task.dart';
 import '../services/database_service.dart';
 import '../widgets/task_card.dart';
@@ -17,6 +18,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
   String _filter = 'all';
   String _searchQuery = '';
   String _sortBy = 'date'; // date, priority, title
+  String _categoryFilter = 'all';
   bool _isLoading = false;
 
   @override
@@ -101,6 +103,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
       }).toList();
     }
 
+    if (_categoryFilter != 'all') {
+      tasks =
+          tasks.where((task) => task.categoryId == _categoryFilter).toList();
+    }
+
     // Sorting
     switch (_sortBy) {
       case 'priority':
@@ -113,6 +120,22 @@ class _TaskListScreenState extends State<TaskListScreen> {
         break;
       case 'title':
         tasks.sort((a, b) => a.title.compareTo(b.title));
+        break;
+      case 'dueDate':
+        tasks.sort((a, b) {
+          final dateA = a.dueDate;
+          final dateB = b.dueDate;
+          if (dateA == null && dateB == null) {
+            return b.createdAt.compareTo(a.createdAt);
+          }
+          if (dateA == null) return 1;
+          if (dateB == null) return -1;
+          final comparison = dateA.compareTo(dateB);
+          if (comparison != 0) {
+            return comparison;
+          }
+          return a.title.compareTo(b.title);
+        });
         break;
       case 'date':
       default:
@@ -232,6 +255,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
               PopupMenuItem(
                   value: 'priority', child: Text('Ordenar por Prioridade')),
               PopupMenuItem(value: 'title', child: Text('Ordenar por Título')),
+              PopupMenuItem(
+                  value: 'dueDate', child: Text('Ordenar por Vencimento')),
             ],
           ),
 
@@ -272,6 +297,35 @@ class _TaskListScreenState extends State<TaskListScreen> {
               ),
             ],
           ),
+
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.category_outlined),
+            onSelected: (value) => setState(() => _categoryFilter = value),
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'all',
+                child: Row(
+                  children: [
+                    Icon(Icons.category),
+                    SizedBox(width: 8),
+                    Text('Todas as categorias'),
+                  ],
+                ),
+              ),
+              ...Categories.all.map(
+                (category) => PopupMenuItem(
+                  value: category.id,
+                  child: Row(
+                    children: [
+                      Icon(category.icon, color: category.color),
+                      const SizedBox(width: 8),
+                      Text(category.name),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: Column(
@@ -296,6 +350,54 @@ class _TaskListScreenState extends State<TaskListScreen> {
               onChanged: (value) => setState(() => _searchQuery = value),
             ),
           ),
+
+          if (_tasks.isNotEmpty)
+            SizedBox(
+              height: 56,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                scrollDirection: Axis.horizontal,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: const Text('Todas as categorias'),
+                      selected: _categoryFilter == 'all',
+                      onSelected: (_) =>
+                          setState(() => _categoryFilter = 'all'),
+                    ),
+                  ),
+                  ...Categories.all.map((category) {
+                    final isSelected = _categoryFilter == category.id;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ChoiceChip(
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              category.icon,
+                              size: 18,
+                              color: isSelected ? Colors.white : category.color,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(category.name),
+                          ],
+                        ),
+                        selected: isSelected,
+                        selectedColor: category.color,
+                        backgroundColor: category.color.withValues(alpha: 0.1),
+                        labelStyle: TextStyle(
+                          color: isSelected ? Colors.white : category.color,
+                        ),
+                        onSelected: (_) =>
+                            setState(() => _categoryFilter = category.id),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
 
           if (_tasks.isNotEmpty)
             Container(

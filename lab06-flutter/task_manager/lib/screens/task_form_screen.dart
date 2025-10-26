@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
+import '../models/category.dart';
 import '../models/task.dart';
 import '../services/database_service.dart';
 
@@ -20,15 +22,20 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   String _priority = 'medium';
   bool _completed = false;
   bool _isSaving = false;
+  DateTime? _dueDate;
+  late String _categoryId;
 
   @override
   void initState() {
     super.initState();
+    _categoryId = Categories.defaultCategory().id;
     if (widget.task != null) {
       _titleController.text = widget.task!.title;
       _descriptionController.text = widget.task!.description;
       _priority = widget.task!.priority;
       _completed = widget.task!.completed;
+      _dueDate = widget.task!.dueDate;
+      _categoryId = widget.task!.categoryId ?? _categoryId;
     }
   }
 
@@ -54,6 +61,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           description: _descriptionController.text.trim(),
           priority: _priority,
           completed: _completed,
+          dueDate: _dueDate,
+          categoryId: _categoryId,
         );
         await DatabaseService.instance.create(task);
         if (mounted) {
@@ -71,6 +80,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           description: _descriptionController.text.trim(),
           priority: _priority,
           completed: _completed,
+          dueDate: _dueDate,
+          overrideDueDate: true,
+          categoryId: _categoryId,
+          overrideCategory: true,
         );
         await DatabaseService.instance.update(updated);
         if (mounted) {
@@ -103,9 +116,32 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     }
   }
 
+  Future<void> _pickDueDate() async {
+    final now = DateTime.now();
+    final initialDate = _dueDate ?? now;
+    final selectedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(now.year - 1),
+      lastDate: DateTime(now.year + 5),
+      helpText: 'Selecionar data de vencimento',
+    );
+
+    if (selectedDate != null) {
+      setState(() {
+        _dueDate = DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.task != null;
+    final dateFormat = DateFormat('dd/MM/yyyy');
 
     return Scaffold(
       appBar: AppBar(
@@ -211,6 +247,68 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                           setState(() => _priority = value);
                         }
                       },
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      initialValue: _categoryId,
+                      decoration: const InputDecoration(
+                        labelText: 'Categoria',
+                        prefixIcon: Icon(Icons.category_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      items: [
+                        for (final category in Categories.all)
+                          DropdownMenuItem(
+                            value: category.id,
+                            child: Row(
+                              children: [
+                                Icon(category.icon, color: category.color),
+                                const SizedBox(width: 8),
+                                Text(category.name),
+                              ],
+                            ),
+                          ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() => _categoryId = value);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Card(
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.event,
+                          color: _dueDate != null
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.grey,
+                        ),
+                        title: const Text('Data de vencimento'),
+                        subtitle: Text(
+                          _dueDate != null
+                              ? 'Vence em ${dateFormat.format(_dueDate!)}'
+                              : 'Nenhuma data definida',
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (_dueDate != null)
+                              IconButton(
+                                tooltip: 'Limpar data',
+                                icon: const Icon(Icons.clear),
+                                onPressed: () =>
+                                    setState(() => _dueDate = null),
+                              ),
+                            IconButton(
+                              tooltip: 'Selecionar data',
+                              icon: const Icon(Icons.calendar_today),
+                              onPressed: _pickDueDate,
+                            ),
+                          ],
+                        ),
+                        onTap: _pickDueDate,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Card(
