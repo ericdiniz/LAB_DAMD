@@ -203,11 +203,13 @@ class TaskCard extends StatelessWidget {
                                 color: category.color,
                                 label: category.name,
                               ),
-                            if (task.hasPhoto)
+                            if (task.hasPhotos)
                               _buildBadge(
                                 icon: Icons.photo_camera,
                                 color: Colors.blue,
-                                label: 'Foto',
+                                label: task.photoPaths.length == 1
+                                    ? '1 foto'
+                                    : '${task.photoPaths.length} fotos',
                               ),
                             if (task.hasLocation)
                               _buildBadge(
@@ -300,32 +302,62 @@ class TaskCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (task.hasPhoto)
+              if (task.hasPhotos)
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      File(task.photoPath!),
-                      height: 180,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
+                    child: Stack(
+                      children: [
+                        Image.file(
+                          File(task.primaryPhotoPath!),
                           height: 180,
-                          color: Colors.grey.shade200,
-                          alignment: Alignment.center,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.broken_image,
-                                  size: 40, color: Colors.grey.shade500),
-                              const SizedBox(height: 8),
-                              const Text('Não foi possível carregar a foto'),
-                            ],
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 180,
+                              color: Colors.grey.shade200,
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.broken_image,
+                                    size: 40,
+                                    color: Colors.grey.shade500,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                      'Não foi possível carregar a foto'),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        if (task.photoPaths.length > 1)
+                          Positioned(
+                            bottom: 12,
+                            right: 12,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.55),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '+${task.photoPaths.length - 1}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ),
-                        );
-                      },
+                      ],
                     ),
                   ),
                 ),

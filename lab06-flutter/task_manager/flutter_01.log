@@ -1,0 +1,74 @@
+Flutter crash report.
+Please report a bug at https://github.com/flutter/flutter/issues.
+
+## command
+
+flutter pub get --no-example
+
+## exception
+
+FileSystemException: FileSystemException: readInto failed, path = '/Users/ericdiniz/Documents/GitHub/LAB_DAMD/lab06-flutter/task_manager/.dart_tool/dartpad/web_plugin_registrant.dart' (OS Error: Operation timed out, errno = 60)
+
+```
+#0      _checkForErrorResponse (dart:io/common.dart:58:9)
+#1      _RandomAccessFile.readInto.<anonymous closure> (dart:io/file_impl.dart:928:7)
+#2      _rootRunUnary (dart:async/zone.dart:1538:47)
+#3      _CustomZone.runUnary (dart:async/zone.dart:1429:19)
+<asynchronous suspension>
+#4      _File.readAsBytes.readSized.read.<anonymous closure> (dart:io/file_impl.dart:629:78)
+<asynchronous suspension>
+```
+
+## flutter doctor
+
+```
+[✓] Flutter (Channel stable, 3.35.4, on macOS 15.6.1 24G90 darwin-arm64, locale pt-BR) [7,2s]
+    • Flutter version 3.35.4 on channel stable at /opt/homebrew/share/flutter
+    • Upstream repository https://github.com/flutter/flutter.git
+    • Framework revision d693b4b9db (7 weeks ago), 2025-09-16 14:27:41 +0000
+    • Engine revision c298091351
+    • Dart version 3.9.2
+    • DevTools version 2.48.0
+    • Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop, enable-android, enable-ios, cli-animations, enable-lldb-debugging
+
+[✓] Android toolchain - develop for Android devices (Android SDK version 34.0.0) [12,0s]
+    • Android SDK at /Users/ericdiniz/Library/Android/sdk
+    • Emulator version 36.1.9.0 (build_id 13823996) (CL:N/A)
+    • Platform android-34-ext8, build-tools 34.0.0
+    • ANDROID_SDK_ROOT = /Users/ericdiniz/Android/Sdk
+    • Java binary at: /Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/java
+      This is the JDK bundled with the latest Android Studio installation on this machine.
+      To manually set the JDK path, use: `flutter config --jdk-dir="path/to/jdk"`.
+    • Java version OpenJDK Runtime Environment (build 21.0.6+-13391695-b895.109)
+    • All Android licenses accepted.
+
+[✓] Xcode - develop for iOS and macOS (Xcode 16.4) [12,3s]
+    • Xcode at /Applications/Xcode.app/Contents/Developer
+    • Build 16F6
+    • CocoaPods version 1.16.2
+
+[✓] Chrome - develop for the web [18ms]
+    • Chrome at /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+
+[✓] Android Studio (version 2025.1) [17ms]
+    • Android Studio at /Applications/Android Studio.app/Contents
+    • Flutter plugin can be installed from:
+      🔨 https://plugins.jetbrains.com/plugin/9212-flutter
+    • Dart plugin can be installed from:
+      🔨 https://plugins.jetbrains.com/plugin/6351-dart
+    • Java version OpenJDK Runtime Environment (build 21.0.6+-13391695-b895.109)
+
+[✓] VS Code (version 1.105.1) [14ms]
+    • VS Code at /Applications/Visual Studio Code.app/Contents
+    • Flutter extension version 3.122.0
+
+[✓] Connected device (3 available) [8,4s]
+    • iPhone 15 Pro Max (mobile) • 569BE8C9-03EB-491B-869E-E254EAA73CF5 • ios            • com.apple.CoreSimulator.SimRuntime.iOS-17-2 (simulator)
+    • macOS (desktop)            • macos                                • darwin-arm64   • macOS 15.6.1 24G90 darwin-arm64
+    • Chrome (web)               • chrome                               • web-javascript • Google Chrome 141.0.7390.123
+
+[✓] Network resources [984ms]
+    • All expected network resources are available.
+
+• No issues found!
+```

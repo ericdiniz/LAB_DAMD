@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:uuid/uuid.dart';
 
 class Task {
@@ -9,7 +11,7 @@ class Task {
   final DateTime createdAt;
   final DateTime? dueDate;
   final String? categoryId;
-  final String? photoPath;
+  final List<String> photoPaths;
   final DateTime? completedAt;
   final String? completedBy;
   final double? latitude;
@@ -25,16 +27,22 @@ class Task {
     DateTime? createdAt,
     this.dueDate,
     this.categoryId,
-    this.photoPath,
+    List<String>? photoPaths,
     this.completedAt,
     this.completedBy,
     this.latitude,
     this.longitude,
     this.locationName,
   })  : id = id ?? const Uuid().v4(),
-        createdAt = createdAt ?? DateTime.now();
+        createdAt = createdAt ?? DateTime.now(),
+        photoPaths = List.unmodifiable(photoPaths ?? const []);
 
-  bool get hasPhoto => photoPath != null && photoPath!.isNotEmpty;
+  bool get hasPhotos => photoPaths.isNotEmpty;
+  String? get primaryPhotoPath => hasPhotos ? photoPaths.first : null;
+  @Deprecated('Use hasPhotos')
+  bool get hasPhoto => hasPhotos;
+  @Deprecated('Use primaryPhotoPath')
+  String? get photoPath => primaryPhotoPath;
   bool get hasLocation => latitude != null && longitude != null;
   bool get wasCompletedByShake => completedBy == 'shake';
 
@@ -48,7 +56,8 @@ class Task {
       'createdAt': createdAt.toIso8601String(),
       'dueDate': dueDate?.toIso8601String(),
       'categoryId': categoryId,
-      'photoPath': photoPath,
+      'photoPath': primaryPhotoPath,
+      'photoPaths': jsonEncode(photoPaths),
       'completedAt': completedAt?.toIso8601String(),
       'completedBy': completedBy,
       'latitude': latitude,
@@ -58,6 +67,29 @@ class Task {
   }
 
   factory Task.fromMap(Map<String, dynamic> map) {
+    List<String> parsedPhotoPaths = const [];
+    final rawPhotoPaths = map['photoPaths'];
+    if (rawPhotoPaths is String && rawPhotoPaths.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(rawPhotoPaths);
+        if (decoded is List) {
+          parsedPhotoPaths = decoded
+              .whereType<String>()
+              .where((path) => path.isNotEmpty)
+              .toList();
+        }
+      } catch (_) {
+        parsedPhotoPaths = const [];
+      }
+    }
+
+    if (parsedPhotoPaths.isEmpty && map['photoPath'] != null) {
+      final singlePath = map['photoPath'] as String?;
+      if (singlePath != null && singlePath.isNotEmpty) {
+        parsedPhotoPaths = [singlePath];
+      }
+    }
+
     return Task(
       id: map['id'],
       title: map['title'],
@@ -68,7 +100,7 @@ class Task {
       dueDate:
           map['dueDate'] != null ? DateTime.tryParse(map['dueDate']) : null,
       categoryId: map['categoryId'],
-      photoPath: map['photoPath'],
+      photoPaths: parsedPhotoPaths,
       completedAt: map['completedAt'] != null
           ? DateTime.tryParse(map['completedAt'])
           : null,
@@ -92,8 +124,8 @@ class Task {
     bool overrideDueDate = false,
     String? categoryId,
     bool overrideCategory = false,
-    String? photoPath,
-    bool overridePhoto = false,
+    List<String>? photoPaths,
+    bool overridePhotos = false,
     DateTime? completedAt,
     bool overrideCompletedAt = false,
     String? completedBy,
@@ -112,7 +144,7 @@ class Task {
       createdAt: createdAt,
       dueDate: overrideDueDate ? dueDate : this.dueDate,
       categoryId: overrideCategory ? categoryId : this.categoryId,
-      photoPath: overridePhoto ? photoPath : this.photoPath,
+      photoPaths: overridePhotos ? (photoPaths ?? const []) : this.photoPaths,
       completedAt: overrideCompletedAt ? completedAt : this.completedAt,
       completedBy: overrideCompletedBy ? completedBy : this.completedBy,
       latitude: overrideLocation ? latitude : this.latitude,

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -22,7 +24,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -40,6 +42,7 @@ class DatabaseService {
         dueDate TEXT,
         categoryId TEXT,
         photoPath TEXT,
+        photoPaths TEXT,
         completedAt TEXT,
         completedBy TEXT,
         latitude REAL,
@@ -63,6 +66,23 @@ class DatabaseService {
       await db.execute('ALTER TABLE tasks ADD COLUMN latitude REAL');
       await db.execute('ALTER TABLE tasks ADD COLUMN longitude REAL');
       await db.execute('ALTER TABLE tasks ADD COLUMN locationName TEXT');
+    }
+    if (oldVersion < 5) {
+      await db.execute('ALTER TABLE tasks ADD COLUMN photoPaths TEXT');
+
+      final existing = await db.query('tasks', columns: ['id', 'photoPath']);
+      for (final row in existing) {
+        final path = row['photoPath'] as String?;
+        final encoded = path != null && path.isNotEmpty
+            ? jsonEncode([path])
+            : jsonEncode(const <String>[]);
+        await db.update(
+          'tasks',
+          {'photoPaths': encoded},
+          where: 'id = ?',
+          whereArgs: [row['id']],
+        );
+      }
     }
   }
 

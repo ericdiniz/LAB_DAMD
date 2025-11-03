@@ -183,8 +183,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
     );
 
     if (confirmed == true) {
-      if (task.hasPhoto) {
-        await CameraService.instance.deletePhoto(task.photoPath!);
+      if (task.hasPhotos) {
+        for (final path in task.photoPaths) {
+          await CameraService.instance.deletePhoto(path);
+        }
       }
       await DatabaseService.instance.delete(task.id);
       await _loadTasks();

@@ -9,6 +9,7 @@ import '../models/task.dart';
 import '../services/camera_service.dart';
 import '../services/database_service.dart';
 import '../services/location_service.dart';
+import '../services/photo_filter_service.dart';
 import '../widgets/location_picker.dart';
 
 class TaskFormScreen extends StatefulWidget {
@@ -25,12 +26,18 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
 
+  static const int _maxPhotos = 5;
+
   String _priority = 'medium';
   bool _completed = false;
   bool _isSaving = false;
   DateTime? _dueDate;
   late String _categoryId;
-  String? _photoPath;
+  List<String> _photoPaths = <String>[];
+  late final Set<String> _initialPhotoPaths;
+  final Set<String> _newPhotoPaths = <String>{};
+  final Set<String> _removedInitialPhotoPaths = <String>{};
+  bool _didPersistPhotos = false;
   double? _latitude;
   double? _longitude;
   String? _locationName;
@@ -47,15 +54,21 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       _completed = widget.task!.completed;
       _dueDate = widget.task!.dueDate;
       _categoryId = widget.task!.categoryId ?? _categoryId;
-      _photoPath = widget.task!.photoPath;
+      _photoPaths = List<String>.from(widget.task!.photoPaths);
       _latitude = widget.task!.latitude;
       _longitude = widget.task!.longitude;
       _locationName = widget.task!.locationName;
+    } else {
+      _photoPaths = <String>[];
     }
+    _initialPhotoPaths = Set<String>.from(_photoPaths);
   }
 
   @override
   void dispose() {
+    if (!_didPersistPhotos) {
+      _cleanupUnsavedPhotos();
+    }
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -78,7 +91,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           completed: _completed,
           dueDate: _dueDate,
           categoryId: _categoryId,
-          photoPath: _photoPath,
+          photoPaths: _photoPaths,
           latitude: _latitude,
           longitude: _longitude,
           locationName: _locationName,
@@ -103,8 +116,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           overrideDueDate: true,
           categoryId: _categoryId,
           overrideCategory: true,
-          photoPath: _photoPath,
-          overridePhoto: true,
+          photoPaths: _photoPaths,
+          overridePhotos: true,
           latitude: _latitude,
           longitude: _longitude,
           locationName: _locationName,
@@ -121,6 +134,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           );
         }
       }
+
+      await _persistPhotoChanges();
 
       if (mounted) {
         Navigator.pop(context, true);
@@ -141,28 +156,62 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     }
   }
 
+  Future<void> _persistPhotoChanges() async {
+    for (final removed in _removedInitialPhotoPaths) {
+      await CameraService.instance.deletePhoto(removed);
+    }
+    _removedInitialPhotoPaths.clear();
+    _newPhotoPaths.clear();
+    _initialPhotoPaths
+      ..clear()
+      ..addAll(_photoPaths);
+    _didPersistPhotos = true;
+  }
+
+  void _cleanupUnsavedPhotos() {
+    for (final path in _newPhotoPaths) {
+      CameraService.instance.deletePhoto(path);
+    }
+  }
+
   Future<void> _takePicture() async {
+    if (_photoPaths.length >= _maxPhotos) {
+      _showPhotoLimitWarning();
+      return;
+    }
+
     final path = await CameraService.instance.takePicture(context);
-    if (path != null && mounted) {
-      setState(() => _photoPath = path);
+    if (path == null) {
+      return;
+    }
+
+    await _handleNewPhoto(path);
+  }
+
+  Future<void> _removePhoto(String path) async {
+    if (!_photoPaths.contains(path)) {
+      return;
+    }
+
+    setState(() {
+      _photoPaths = List<String>.from(_photoPaths)..remove(path);
+    });
+
+    if (_initialPhotoPaths.contains(path)) {
+      _removedInitialPhotoPaths.add(path);
+    } else {
+      _newPhotoPaths.remove(path);
+      await CameraService.instance.deletePhoto(path);
+    }
+
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('📷 Foto capturada!'),
-          backgroundColor: Colors.green,
+          content: Text('🗑️ Foto removida'),
           duration: Duration(seconds: 2),
         ),
       );
     }
-  }
-
-  void _removePhoto() {
-    setState(() => _photoPath = null);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('🗑️ Foto removida'),
-        duration: Duration(seconds: 2),
-      ),
-    );
   }
 
   Future<void> _pickLocation() async {
@@ -199,22 +248,38 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   }
 
   Future<void> _pickFromGallery() async {
+    final remainingSlots = _maxPhotos - _photoPaths.length;
+    if (remainingSlots <= 0) {
+      _showPhotoLimitWarning();
+      return;
+    }
+
     try {
-      final image = await _imagePicker.pickImage(source: ImageSource.gallery);
-      if (image == null) {
+      final images = await _imagePicker.pickMultiImage();
+      if (images.isEmpty) {
         return;
       }
 
-      final savedPath = await CameraService.instance.savePicture(image);
-      if (!mounted) return;
-      setState(() => _photoPath = savedPath);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🖼️ Imagem adicionada da galeria'),
-          backgroundColor: Colors.blue,
-          duration: Duration(seconds: 2),
-        ),
-      );
+      int added = 0;
+      for (final image in images) {
+        if (_photoPaths.length >= _maxPhotos) {
+          break;
+        }
+
+        final savedPath = await CameraService.instance.savePicture(image);
+        await _handleNewPhoto(savedPath, showSuccessFeedback: false);
+        added += 1;
+      }
+
+      if (added > 0 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('🖼️ $added foto(s) adicionada(s) da galeria'),
+            backgroundColor: Colors.blue,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -226,9 +291,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     }
   }
 
-  void _viewPhoto() {
-    if (_photoPath == null) return;
-
+  void _viewPhoto(String path) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -239,9 +302,316 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           backgroundColor: Colors.black,
           body: Center(
             child: InteractiveViewer(
-              child: Image.file(File(_photoPath!)),
+              child: Image.file(File(path)),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showPhotoLimitWarning() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Limite de $_maxPhotos foto(s) por tarefa atingido'),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _handleNewPhoto(
+    String originalPath, {
+    bool showSuccessFeedback = true,
+  }) async {
+    if (!mounted) {
+      await CameraService.instance.deletePhoto(originalPath);
+      return;
+    }
+
+    final filter = await _promptFilterSelection(
+      title: 'Escolha um filtro para a nova foto',
+    );
+
+    if (filter == null) {
+      await CameraService.instance.deletePhoto(originalPath);
+      return;
+    }
+
+    if (_photoPaths.length >= _maxPhotos) {
+      await CameraService.instance.deletePhoto(originalPath);
+      _showPhotoLimitWarning();
+      return;
+    }
+
+    late final String processedPath;
+    try {
+      processedPath = await _applyFilterIfNeeded(originalPath, filter);
+    } catch (error) {
+      await CameraService.instance.deletePhoto(originalPath);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao aplicar filtro: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    if (!mounted) {
+      await CameraService.instance.deletePhoto(processedPath);
+      return;
+    }
+
+    if (_photoPaths.contains(processedPath)) {
+      await CameraService.instance.deletePhoto(processedPath);
+      return;
+    }
+
+    setState(() {
+      _photoPaths = List<String>.from(_photoPaths)..add(processedPath);
+    });
+
+    _newPhotoPaths.add(processedPath);
+
+    if (showSuccessFeedback && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('📸 Foto adicionada'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _applyFilterToExistingPhoto(String path) async {
+    if (!mounted || !_photoPaths.contains(path)) {
+      return;
+    }
+
+    final filter = await _promptFilterSelection(
+      title: 'Aplicar filtro',
+    );
+
+    if (filter == null || filter == PhotoFilterType.original) {
+      return;
+    }
+
+    final duplicatePath = await _duplicatePhoto(path);
+    if (duplicatePath == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Não foi possível preparar a foto para o filtro'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    late final String processedPath;
+    try {
+      processedPath = await _applyFilterIfNeeded(duplicatePath, filter);
+    } catch (error) {
+      await CameraService.instance.deletePhoto(duplicatePath);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao aplicar filtro: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    if (!mounted) {
+      await CameraService.instance.deletePhoto(processedPath);
+      return;
+    }
+
+    setState(() {
+      final index = _photoPaths.indexOf(path);
+      if (index != -1) {
+        final updated = List<String>.from(_photoPaths);
+        updated[index] = processedPath;
+        _photoPaths = updated;
+      }
+    });
+
+    if (_initialPhotoPaths.contains(path)) {
+      _removedInitialPhotoPaths.add(path);
+    } else {
+      _newPhotoPaths.remove(path);
+    }
+    _newPhotoPaths.add(processedPath);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🎨 Filtro aplicado'),
+          backgroundColor: Colors.blue,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<String?> _duplicatePhoto(String path) async {
+    try {
+      final original = File(path);
+      if (!await original.exists()) {
+        return null;
+      }
+
+      final directory = original.parent.path;
+      final fileName =
+          'task_${DateTime.now().millisecondsSinceEpoch}_${original.hashCode}.jpg';
+      final copy = await original.copy('$directory/$fileName');
+      return copy.path;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String> _applyFilterIfNeeded(
+    String path,
+    PhotoFilterType filter,
+  ) {
+    if (filter == PhotoFilterType.original) {
+      return Future.value(path);
+    }
+    return PhotoFilterService.instance.applyFilter(path, filter);
+  }
+
+  Future<PhotoFilterType?> _promptFilterSelection(
+      {required String title}) async {
+    if (!mounted) return null;
+
+    return showModalBottomSheet<PhotoFilterType>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo),
+                title: const Text('Original'),
+                onTap: () => Navigator.pop(context, PhotoFilterType.original),
+              ),
+              ListTile(
+                leading: const Icon(Icons.filter_b_and_w),
+                title: const Text('Preto e branco'),
+                onTap: () => Navigator.pop(context, PhotoFilterType.grayscale),
+              ),
+              ListTile(
+                leading: const Icon(Icons.tonality),
+                title: const Text('Sépia'),
+                onTap: () => Navigator.pop(context, PhotoFilterType.sepia),
+              ),
+              const Divider(height: 0),
+              ListTile(
+                leading: const Icon(Icons.close),
+                title: const Text('Cancelar'),
+                onTap: () => Navigator.pop(context, null),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPhotoThumbnail(String path, int index) {
+    return SizedBox(
+      width: 220,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.file(
+              File(path),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.grey.shade200,
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.broken_image,
+                        color: Colors.grey.shade500,
+                        size: 32,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Erro ao carregar',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            Positioned(
+              bottom: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '#${index + 1}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  IconButton.filledTonal(
+                    onPressed: () => _viewPhoto(path),
+                    icon: const Icon(Icons.zoom_in),
+                    tooltip: 'Visualizar',
+                  ),
+                  const SizedBox(height: 8),
+                  IconButton.filledTonal(
+                    onPressed: () => _applyFilterToExistingPhoto(path),
+                    icon: const Icon(Icons.brush),
+                    tooltip: 'Aplicar filtro',
+                  ),
+                  const SizedBox(height: 8),
+                  IconButton.filledTonal(
+                    onPressed: () => _removePhoto(path),
+                    icon: const Icon(Icons.delete),
+                    tooltip: 'Remover',
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -483,50 +853,25 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 const Text(
-                                  'Anexar foto',
+                                  'Anexar fotos',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
+                                const Spacer(),
+                                Text(
+                                  '${_photoPaths.length}/$_maxPhotos',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 12),
-                            if (_photoPath != null)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Stack(
-                                  children: [
-                                    AspectRatio(
-                                      aspectRatio: 16 / 9,
-                                      child: Image.file(
-                                        File(_photoPath!),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      top: 8,
-                                      right: 8,
-                                      child: Row(
-                                        children: [
-                                          IconButton.filledTonal(
-                                            onPressed: _viewPhoto,
-                                            icon: const Icon(Icons.zoom_in),
-                                            tooltip: 'Visualizar',
-                                          ),
-                                          const SizedBox(width: 8),
-                                          IconButton.filledTonal(
-                                            onPressed: _removePhoto,
-                                            icon: const Icon(Icons.delete),
-                                            tooltip: 'Remover',
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            else
+                            if (_photoPaths.isEmpty)
                               Container(
                                 height: 140,
                                 decoration: BoxDecoration(
@@ -540,23 +885,52 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                   'Nenhuma foto anexada',
                                   style: TextStyle(color: Colors.grey),
                                 ),
+                              )
+                            else
+                              SizedBox(
+                                height: 180,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: _photoPaths.length,
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(width: 12),
+                                  itemBuilder: (context, index) {
+                                    final path = _photoPaths[index];
+                                    return _buildPhotoThumbnail(path, index);
+                                  },
+                                ),
                               ),
                             const SizedBox(height: 12),
                             FilledButton.icon(
-                              onPressed: _takePicture,
+                              onPressed: _photoPaths.length >= _maxPhotos
+                                  ? null
+                                  : _takePicture,
                               icon: const Icon(Icons.camera),
                               label: Text(
-                                _photoPath == null
+                                _photoPaths.isEmpty
                                     ? 'Capturar foto'
                                     : 'Capturar outra foto',
                               ),
                             ),
                             const SizedBox(height: 8),
                             OutlinedButton.icon(
-                              onPressed: _pickFromGallery,
+                              onPressed: _photoPaths.length >= _maxPhotos
+                                  ? null
+                                  : _pickFromGallery,
                               icon: const Icon(Icons.photo_library),
                               label: const Text('Selecionar da galeria'),
-                            )
+                            ),
+                            if (_photoPaths.length >= _maxPhotos)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  'Você atingiu o limite máximo de fotos para esta tarefa.',
+                                  style: TextStyle(
+                                    color: Colors.orange.shade700,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ),
