@@ -7,15 +7,9 @@ const config = require('./config/database');
 const database = require('./database/database');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
-const { userLimiter } = require('./middleware/rateLimitUser'); // <-- aqui
-
-// ---- Logs estruturados (Pino)
-const pino = require('pino');
-const pinoHttp = require('pino-http');
-const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
+const { userLimiter } = require('./middleware/rateLimitUser');
 
 const app = express();
-app.use(pinoHttp({ logger })); // logs por requisição
 
 app.use(helmet());
 app.use(rateLimit(config.rateLimit));
@@ -38,7 +32,7 @@ app.use((req, res) => res.status(404).json({ success: false, message: 'Endpoint 
 
 // handler global de erros com log estruturado
 app.use((error, req, res, next) => {
-  req.log?.error({ err: error }, 'unhandled_error');
+  console.error('unhandled_error', error);
   res.status(500).json({ success: false, message: 'Erro interno do servidor' });
 });
 
@@ -46,10 +40,10 @@ async function startServer() {
   try {
     await database.init();
     app.listen(config.port, () => {
-      logger.info({ port: config.port }, 'server_started');
+      console.log(`Server started on port ${config.port}`);
     });
   } catch (e) {
-    logger.error({ err: e }, 'startup_failed');
+    console.error('startup_failed', e);
     process.exit(1);
   }
 }

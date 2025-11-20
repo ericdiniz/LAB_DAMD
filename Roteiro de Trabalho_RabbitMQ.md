@@ -175,14 +175,14 @@ def conectar_rabbitmq(amqp_url):
     params.socket_timeout = 5
     connection = pika.BlockingConnection(params)
     channel = connection.channel()
-    
+
     # Declarar exchange
     channel.exchange_declare(
         exchange='bolsa',
         exchange_type='topic',
         durable=True
     )
-    
+
     return connection, channel
 ```
 
@@ -210,12 +210,12 @@ def simular_bolsa():
     """Simula um producer enviando dados da bolsa de valores."""
     # URL de conexão do CloudAMQP - substitua pela sua URL
     amqp_url = 'amqp://usuario:senha@servidor.cloudamqp.com/vhost'
-    
+
     # Conectar ao RabbitMQ
     connection, channel = conectar_rabbitmq(amqp_url)
-    
+
     acoes = ['PETR4', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3']
-    
+
     try:
         # Simulação de envio contínuo de mensagens
         for i in range(20):
@@ -223,7 +223,7 @@ def simular_bolsa():
             acao = random.choice(acoes)
             valor = round(random.uniform(10, 100), 2)
             variacao = round(random.uniform(-5, 5), 2)
-            
+
             # Mensagem de cotação
             mensagem_cotacao = {
                 'acao': acao,
@@ -231,16 +231,16 @@ def simular_bolsa():
                 'variacao': variacao,
                 'timestamp': time.time()
             }
-            
+
             # Routing key para cotação
             routing_key = f'bolsa.cotacoes.acoes.{acao.lower()}'
             publicar_mensagem(channel, routing_key, mensagem_cotacao)
-            
+
             # Ocasionalmente simular uma negociação
             if random.random() > 0.7:
                 quantidade = random.randint(100, 10000)
                 tipo = random.choice(['compra', 'venda'])
-                
+
                 mensagem_negociacao = {
                     'acao': acao,
                     'quantidade': quantidade,
@@ -248,13 +248,13 @@ def simular_bolsa():
                     'tipo': tipo,
                     'timestamp': time.time()
                 }
-                
+
                 # Routing key para negociação
                 routing_key = f'bolsa.negociacoes.{tipo}.{acao.lower()}'
                 publicar_mensagem(channel, routing_key, mensagem_negociacao)
-            
+
             time.sleep(1)  # Intervalo entre mensagens
-    
+
     finally:
         connection.close()
         print("Conexão fechada")
@@ -286,27 +286,27 @@ def conectar_rabbitmq(amqp_url, queue_name, binding_key):
     params = pika.URLParameters(amqp_url)
     connection = pika.BlockingConnection(params)
     channel = connection.channel()
-    
+
     # Declarar exchange
     channel.exchange_declare(
         exchange='bolsa',
         exchange_type='topic',
         durable=True
     )
-    
+
     # Declarar fila
     channel.queue_declare(
         queue=queue_name,
         durable=True
     )
-    
+
     # Vincular a fila ao exchange
     channel.queue_bind(
         exchange='bolsa',
         queue=queue_name,
         routing_key=binding_key
     )
-    
+
     return connection, channel
 ```
 
@@ -318,17 +318,17 @@ def processar_mensagem(ch, method, properties, body):
     try:
         # Converter a mensagem JSON para dicionário
         mensagem = json.loads(body)
-        
+
         # Extrair a routing key
         routing_key = method.routing_key
-        
+
         print(f"\nRecebida mensagem com routing key: {routing_key}")
         print(f"Conteúdo: {mensagem}")
-        
+
         # Simulação de processamento
         print("Processando mensagem...")
         time.sleep(0.5)  # Simular processamento
-        
+
         # Verificar tipo de mensagem pelo routing key
         if 'cotacoes' in routing_key:
             # Processar cotação
@@ -336,13 +336,13 @@ def processar_mensagem(ch, method, properties, body):
             valor = mensagem['valor']
             variacao = mensagem['variacao']
             print(f"Cotação de {acao}: R$ {valor} (variação: {variacao}%)")
-            
+
             # Simular análise técnica
             if variacao > 2:
                 print(f"ALERTA: {acao} em alta expressiva!")
             elif variacao < -2:
                 print(f"ALERTA: {acao} em queda expressiva!")
-        
+
         elif 'negociacoes' in routing_key:
             # Processar negociação
             acao = mensagem['acao']
@@ -350,11 +350,11 @@ def processar_mensagem(ch, method, properties, body):
             valor_total = mensagem['valor_total']
             tipo = mensagem['tipo']
             print(f"Negociação de {acao}: {tipo} de {quantidade} ações por R$ {valor_total:.2f}")
-        
+
         # Acknowledge da mensagem (confirma o processamento)
         ch.basic_ack(delivery_tag=method.delivery_tag)
         print("Mensagem processada com sucesso!")
-        
+
     except Exception as e:
         print(f"Erro ao processar mensagem: {e}")
         # Em caso de erro, rejeita a mensagem (não volta para a fila)
@@ -368,7 +368,7 @@ def iniciar_consumer(tipo_consumer):
     """Inicia o consumer com as configurações apropriadas."""
     # URL de conexão do CloudAMQP - substitua pela sua URL
     amqp_url = 'amqp://usuario:senha@servidor.cloudamqp.com/vhost'
-    
+
     if tipo_consumer == 'cotacoes':
         queue_name = 'cotacoes'
         binding_key = 'bolsa.cotacoes.#'
@@ -379,21 +379,21 @@ def iniciar_consumer(tipo_consumer):
         print("Iniciando consumer de NEGOCIAÇÕES...")
     else:
         raise ValueError(f"Tipo de consumer inválido: {tipo_consumer}")
-    
+
     # Conectar ao RabbitMQ
     connection, channel = conectar_rabbitmq(amqp_url, queue_name, binding_key)
-    
+
     # Configurar prefetch (quantas mensagens processar de uma vez)
     channel.basic_qos(prefetch_count=1)
-    
+
     # Configurar o consumo de mensagens
     channel.basic_consume(
         queue=queue_name,
         on_message_callback=processar_mensagem
     )
-    
+
     print(f"Consumer {tipo_consumer} aguardando mensagens...")
-    
+
     try:
         # Iniciar o loop de consumo
         channel.start_consuming()

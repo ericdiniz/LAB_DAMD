@@ -1,0 +1,418 @@
+[
+  {
+    "id": "f598cfcd-48f5-435a-b976-6dd54e129d02",
+    "name": "Lista do Mercado",
+    "description": "Compras da semana",
+    "status": "completed",
+    "items": [
+      {
+        "itemId": "111",
+        "itemName": "Arroz Cateto Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 12.5,
+        "purchased": true,
+        "notes": "Integral orgânico",
+        "addedAt": "2025-09-20T22:53:26.355Z",
+        "purchasedAt": "2025-11-20T15:39:46.114Z"
+      },
+      {
+        "itemId": "222",
+        "itemName": "Feijão Preto",
+        "quantity": 1,
+        "unit": "kg",
+        "estimatedPrice": 8.9,
+        "purchased": true,
+        "notes": "Safra nova",
+        "addedAt": "2025-09-20T22:53:31.262Z",
+        "purchasedAt": "2025-11-20T15:39:46.114Z"
+      },
+      {
+        "itemId": "333",
+        "itemName": "Café Torrado e Moído",
+        "quantity": 1,
+        "unit": "pacote",
+        "estimatedPrice": 15,
+        "purchased": true,
+        "notes": "Extra forte",
+        "addedAt": "2025-09-20T22:53:35.918Z",
+        "purchasedAt": "2025-11-20T15:39:46.114Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 3,
+      "purchasedItems": 3,
+      "estimatedTotal": 48.9,
+      "totalSpent": 48.9,
+      "completedAt": "2025-11-20T15:39:46.114Z"
+    },
+    "createdAt": "2025-09-20T22:53:08.773Z",
+    "updatedAt": "2025-11-20T15:39:46.115Z"
+  },
+  {
+    "id": "b326948e-f30b-426d-b6e0-48e5a35fa101",
+    "name": "Compras Semanais",
+    "description": "Itens básicos da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+        "itemName": "Arroz Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 7.99,
+        "purchased": false,
+        "notes": "Adicionado pelo client-demo",
+        "addedAt": "2025-09-20T22:57:36.054Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 1,
+      "purchasedItems": 0,
+      "estimatedTotal": 15.98
+    },
+    "createdAt": "2025-09-20T22:57:36.048Z",
+    "updatedAt": "2025-09-20T22:57:36.054Z"
+  },
+  {
+    "id": "ca150f64-e74e-4d96-bf7c-b91ed299ff42",
+    "name": "Lista do Mercado",
+    "description": "Compras da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+        "itemName": "Arroz Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 15.98,
+        "purchased": false,
+        "notes": "Orgânico",
+        "addedAt": "2025-09-20T23:08:44.933Z"
+      },
+      {
+        "itemId": "4c271f31-9607-469e-b5fb-c84c620f2359",
+        "itemName": "Feijão Preto",
+        "quantity": 1,
+        "unit": "kg",
+        "estimatedPrice": 6.49,
+        "purchased": false,
+        "notes": "Safra nova",
+        "addedAt": "2025-09-20T23:08:44.947Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 2,
+      "purchasedItems": 0,
+      "estimatedTotal": 38.45
+    },
+    "createdAt": "2025-09-20T23:08:44.917Z",
+    "updatedAt": "2025-09-20T23:08:44.947Z"
+  },
+  {
+    "id": "c2397801-da9e-4712-8788-2cdf73b522f3",
+    "name": "Lista do Mercado",
+    "description": "Compras da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+        "itemName": "Arroz Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 15.98,
+        "purchased": false,
+        "notes": "Orgânico",
+        "addedAt": "2025-09-20T23:10:30.164Z"
+      },
+      {
+        "itemId": "4c271f31-9607-469e-b5fb-c84c620f2359",
+        "itemName": "Feijão Preto",
+        "quantity": 1,
+        "unit": "kg",
+        "estimatedPrice": 6.49,
+        "purchased": false,
+        "notes": "Safra nova",
+        "addedAt": "2025-09-20T23:10:30.179Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 2,
+      "purchasedItems": 0,
+      "estimatedTotal": 38.45
+    },
+    "createdAt": "2025-09-20T23:10:30.148Z",
+    "updatedAt": "2025-09-20T23:10:30.179Z"
+  },
+  {
+    "id": "ce8be515-d7fe-4522-90cb-2f14913b5359",
+    "name": "Lista do Mercado",
+    "description": "Compras da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+        "itemName": "Arroz Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 15.98,
+        "purchased": false,
+        "notes": "Orgânico",
+        "addedAt": "2025-09-20T23:11:26.697Z"
+      },
+      {
+        "itemId": "4c271f31-9607-469e-b5fb-c84c620f2359",
+        "itemName": "Feijão Preto",
+        "quantity": 1,
+        "unit": "kg",
+        "estimatedPrice": 6.49,
+        "purchased": false,
+        "notes": "Safra nova",
+        "addedAt": "2025-09-20T23:11:26.712Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 2,
+      "purchasedItems": 0,
+      "estimatedTotal": 38.45
+    },
+    "createdAt": "2025-09-20T23:11:26.680Z",
+    "updatedAt": "2025-09-20T23:11:26.712Z"
+  },
+  {
+    "id": "226efca2-c72a-4973-abe3-9ac961c9a8f8",
+    "name": "Lista do Mercado",
+    "description": "Compras da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+        "itemName": "Arroz Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 15.98,
+        "purchased": false,
+        "notes": "Orgânico",
+        "addedAt": "2025-09-20T23:12:40.823Z"
+      },
+      {
+        "itemId": "4c271f31-9607-469e-b5fb-c84c620f2359",
+        "itemName": "Feijão Preto",
+        "quantity": 1,
+        "unit": "kg",
+        "estimatedPrice": 6.49,
+        "purchased": false,
+        "notes": "Safra nova",
+        "addedAt": "2025-09-20T23:12:40.838Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 2,
+      "purchasedItems": 0,
+      "estimatedTotal": 38.45
+    },
+    "createdAt": "2025-09-20T23:12:40.805Z",
+    "updatedAt": "2025-09-20T23:12:40.838Z"
+  },
+  {
+    "id": "7c86ae52-f6a7-4ac4-80bb-fd45e7e00ac7",
+    "name": "Lista do Mercado",
+    "description": "Compras da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+        "itemName": "Arroz Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 15.98,
+        "purchased": false,
+        "notes": "Orgânico",
+        "addedAt": "2025-09-20T23:13:38.273Z"
+      },
+      {
+        "itemId": "4c271f31-9607-469e-b5fb-c84c620f2359",
+        "itemName": "Feijão Preto",
+        "quantity": 1,
+        "unit": "kg",
+        "estimatedPrice": 6.49,
+        "purchased": false,
+        "notes": "Safra nova",
+        "addedAt": "2025-09-20T23:13:38.290Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 2,
+      "purchasedItems": 0,
+      "estimatedTotal": 38.45
+    },
+    "createdAt": "2025-09-20T23:13:38.256Z",
+    "updatedAt": "2025-09-20T23:13:38.290Z"
+  },
+  {
+    "id": "dc6622b8-f70e-4f3f-b6ca-771f0af37603",
+    "name": "Compras Semanais",
+    "description": "Itens básicos da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+        "itemName": "Arroz Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 7.99,
+        "purchased": false,
+        "notes": "Adicionado pelo client-demo",
+        "addedAt": "2025-09-20T23:17:12.909Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 1,
+      "purchasedItems": 0,
+      "estimatedTotal": 15.98
+    },
+    "createdAt": "2025-09-20T23:17:12.903Z",
+    "updatedAt": "2025-09-20T23:17:12.909Z"
+  },
+  {
+    "id": "1c267061-cbf9-48d3-945e-627a20f45e5c",
+    "name": "Lista do Mercado",
+    "description": "Compras da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+        "itemName": "Arroz Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 15.98,
+        "purchased": false,
+        "notes": "Orgânico",
+        "addedAt": "2025-09-20T23:18:23.597Z"
+      },
+      {
+        "itemId": "4c271f31-9607-469e-b5fb-c84c620f2359",
+        "itemName": "Feijão Preto",
+        "quantity": 1,
+        "unit": "kg",
+        "estimatedPrice": 6.49,
+        "purchased": false,
+        "notes": "Safra nova",
+        "addedAt": "2025-09-20T23:18:23.615Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 2,
+      "purchasedItems": 0,
+      "estimatedTotal": 38.45
+    },
+    "createdAt": "2025-09-20T23:18:23.575Z",
+    "updatedAt": "2025-09-20T23:18:23.616Z"
+  },
+  {
+    "id": "de2f16b6-3520-4c95-8e1b-f8a77e916ec3",
+    "name": "Compras Semanais",
+    "description": "Itens básicos da semana",
+    "status": "active",
+    "items": [
+      {
+        "itemId": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+        "itemName": "Arroz Integral",
+        "quantity": 2,
+        "unit": "kg",
+        "estimatedPrice": 7.99,
+        "purchased": false,
+        "notes": "Adicionado pelo client-demo",
+        "addedAt": "2025-09-22T23:41:08.782Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 1,
+      "purchasedItems": 0,
+      "estimatedTotal": 15.98
+    },
+    "createdAt": "2025-09-22T23:41:08.774Z",
+    "updatedAt": "2025-09-22T23:41:08.782Z"
+  },
+  {
+    "id": "16674369-6044-48d2-9163-94db9204996c",
+    "name": "Lista Rabbit",
+    "description": "Teste mensageria",
+    "status": "completed",
+    "items": [
+      {
+        "itemId": "abc123",
+        "itemName": "Café",
+        "quantity": 2,
+        "unit": "un",
+        "estimatedPrice": 15.5,
+        "purchased": true,
+        "notes": "Torra média",
+        "addedAt": "2025-11-20T15:44:06.520Z",
+        "purchasedAt": "2025-11-20T15:44:18.152Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 1,
+      "purchasedItems": 1,
+      "estimatedTotal": 31,
+      "totalSpent": 31,
+      "completedAt": "2025-11-20T15:44:18.152Z"
+    },
+    "createdAt": "2025-11-20T15:43:59.435Z",
+    "updatedAt": "2025-11-20T15:44:18.153Z"
+  },
+  {
+    "id": "64bc1179-b40d-489f-9f09-f7be605bbdc9",
+    "name": "Lista Rabbit",
+    "description": "Teste mensageria",
+    "status": "active",
+    "items": [],
+    "summary": {
+      "totalItems": 0,
+      "purchasedItems": 0,
+      "estimatedTotal": 0
+    },
+    "createdAt": "2025-11-20T19:18:14.345Z",
+    "updatedAt": "2025-11-20T19:18:14.346Z"
+  },
+  {
+    "id": "8711fcd7-74b3-4bcc-bc8d-7585701bb1a1",
+    "name": "Lista Rabbit",
+    "description": "Teste mensageria",
+    "status": "completed",
+    "items": [
+      {
+        "itemId": "cafe",
+        "itemName": "Café",
+        "quantity": 2,
+        "unit": "un",
+        "estimatedPrice": 15.5,
+        "purchased": true,
+        "notes": "Torra média",
+        "addedAt": "2025-11-20T19:25:27.059Z",
+        "purchasedAt": "2025-11-20T19:26:08.320Z"
+      },
+      {
+        "itemId": "pao",
+        "itemName": "Pão",
+        "quantity": 4,
+        "unit": "un",
+        "estimatedPrice": 3.2,
+        "purchased": true,
+        "notes": "Integral",
+        "addedAt": "2025-11-20T19:25:34.585Z",
+        "purchasedAt": "2025-11-20T19:26:08.320Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 2,
+      "purchasedItems": 2,
+      "estimatedTotal": 43.8,
+      "totalSpent": 43.8,
+      "completedAt": "2025-11-20T19:26:08.320Z"
+    },
+    "createdAt": "2025-11-20T19:19:16.899Z",
+    "updatedAt": "2025-11-20T19:26:08.323Z"
+  }
+]

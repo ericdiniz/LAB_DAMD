@@ -1,0 +1,22 @@
+{
+  "user-service": {
+    "url": "http://127.0.0.1:3001",
+    "healthy": true,
+    "registeredAt": 1758584080190,
+    "pid": 54655,
+    "lastHealthCheck": 1758586230255
+  },
+  "item-service": {
+    "url": "http://127.0.0.1:3002",
+    "healthy": true,
+    "registeredAt": 1758584066918,
+    "pid": 53385,
+    "lastHealthCheck": 1758586230264
+  },
+  "list-service": {
+    "url": "http://localhost:3003",
+    "healthy": true,
+    "registeredAt": 1763666261631,
+    "pid": 85861
+  }
+}

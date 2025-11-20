@@ -1,0 +1,370 @@
+[
+  {
+    "id": "86119c90-7ae7-484a-8dc7-957dc17ca342",
+    "name": "Arroz Integral",
+    "category": {
+      "name": "Alimentos",
+      "slug": "alimentos"
+    },
+    "brand": "Tio João",
+    "unit": "kg",
+    "averagePrice": 7.99,
+    "barcode": "7891234567890",
+    "description": "Arroz integral orgânico",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.984Z",
+    "updatedAt": "2025-09-20T14:21:00.985Z"
+  },
+  {
+    "id": "4c271f31-9607-469e-b5fb-c84c620f2359",
+    "name": "Feijão Preto",
+    "category": {
+      "name": "Alimentos",
+      "slug": "alimentos"
+    },
+    "brand": "Camil",
+    "unit": "kg",
+    "averagePrice": 6.49,
+    "barcode": "7891234567891",
+    "description": "Feijão preto tradicional",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.985Z",
+    "updatedAt": "2025-09-20T14:21:00.985Z"
+  },
+  {
+    "id": "5c8ce625-ee6b-480b-9d43-3a78fdc855bd",
+    "name": "Detergente Líquido",
+    "category": {
+      "name": "Limpeza",
+      "slug": "limpeza"
+    },
+    "brand": "Ypê",
+    "unit": "un",
+    "averagePrice": 2.99,
+    "barcode": "7891234567892",
+    "description": "Detergente para louças",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.985Z",
+    "updatedAt": "2025-09-20T14:21:00.985Z"
+  },
+  {
+    "id": "0161af81-7a19-463a-b6a1-40ce6d781426",
+    "name": "Álcool Gel",
+    "category": {
+      "name": "Limpeza",
+      "slug": "limpeza"
+    },
+    "brand": "Álcool 70%",
+    "unit": "un",
+    "averagePrice": 5.5,
+    "barcode": "7891234567893",
+    "description": "Álcool em gel 70%",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.985Z",
+    "updatedAt": "2025-09-20T14:21:00.985Z"
+  },
+  {
+    "id": "f6a2b1db-e44f-4016-a9b6-fc1b4ed75aa4",
+    "name": "Sabonete Líquido",
+    "category": {
+      "name": "Higiene",
+      "slug": "higiene"
+    },
+    "brand": "Dove",
+    "unit": "un",
+    "averagePrice": 8.99,
+    "barcode": "7891234567894",
+    "description": "Sabonete líquido hidratante",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.986Z",
+    "updatedAt": "2025-09-20T14:21:00.986Z"
+  },
+  {
+    "id": "ca19c061-f07e-46c9-a9c2-1689bcda6267",
+    "name": "Pasta de Dente",
+    "category": {
+      "name": "Higiene",
+      "slug": "higiene"
+    },
+    "brand": "Colgate",
+    "unit": "un",
+    "averagePrice": 4.99,
+    "barcode": "7891234567895",
+    "description": "Pasta de dente anti-cáries",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.986Z",
+    "updatedAt": "2025-09-20T14:21:00.986Z"
+  },
+  {
+    "id": "b1fcd0d5-5dff-4199-b1d4-f941e1a13660",
+    "name": "Refrigerante Cola",
+    "category": {
+      "name": "Bebidas",
+      "slug": "bebidas"
+    },
+    "brand": "Coca-Cola",
+    "unit": "l",
+    "averagePrice": 6,
+    "barcode": "7891234567896",
+    "description": "Refrigerante sabor cola",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.987Z",
+    "updatedAt": "2025-09-20T14:21:00.987Z"
+  },
+  {
+    "id": "ced492e2-b92c-4011-85d7-e757243aa44c",
+    "name": "Suco de Laranja",
+    "category": {
+      "name": "Bebidas",
+      "slug": "bebidas"
+    },
+    "brand": "Del Valle",
+    "unit": "l",
+    "averagePrice": 7.5,
+    "barcode": "7891234567897",
+    "description": "Suco natural de laranja",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.987Z",
+    "updatedAt": "2025-09-20T14:21:00.987Z"
+  },
+  {
+    "id": "556db80a-ea23-43bf-8def-91c08acc71fb",
+    "name": "Pão Francês",
+    "category": {
+      "name": "Padaria",
+      "slug": "padaria"
+    },
+    "brand": "Padaria Central",
+    "unit": "un",
+    "averagePrice": 0.5,
+    "barcode": "7891234567898",
+    "description": "Pão francês fresquinho",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.987Z",
+    "updatedAt": "2025-09-20T14:21:00.987Z"
+  },
+  {
+    "id": "bd35d3df-65ce-4a46-a7be-6eeb0830d1ad",
+    "name": "Bolo de Chocolate",
+    "category": {
+      "name": "Padaria",
+      "slug": "padaria"
+    },
+    "brand": "Padaria Central",
+    "unit": "un",
+    "averagePrice": 15,
+    "barcode": "7891234567899",
+    "description": "Bolo caseiro de chocolate",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.987Z",
+    "updatedAt": "2025-09-20T14:21:00.987Z"
+  },
+  {
+    "id": "6450b0a7-1e77-4d81-b041-f677235a912f",
+    "name": "Macarrão Espaguete",
+    "category": {
+      "name": "Alimentos",
+      "slug": "alimentos"
+    },
+    "brand": "Barilla",
+    "unit": "kg",
+    "averagePrice": 9.99,
+    "barcode": "7891234570000",
+    "description": "Macarrão espaguete tradicional",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.988Z",
+    "updatedAt": "2025-09-20T14:21:00.988Z"
+  },
+  {
+    "id": "d4747c3d-f459-475d-a6d2-660d8d3bceb2",
+    "name": "Detergente em Pó",
+    "category": {
+      "name": "Limpeza",
+      "slug": "limpeza"
+    },
+    "brand": "Omo",
+    "unit": "kg",
+    "averagePrice": 18,
+    "barcode": "7891234570001",
+    "description": "Detergente em pó para roupas",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.988Z",
+    "updatedAt": "2025-09-20T14:21:00.988Z"
+  },
+  {
+    "id": "484799e8-1863-43c2-9aaf-0330438b2258",
+    "name": "Creme Dental",
+    "category": {
+      "name": "Higiene",
+      "slug": "higiene"
+    },
+    "brand": "Sensodyne",
+    "unit": "un",
+    "averagePrice": 12,
+    "barcode": "7891234570002",
+    "description": "Creme dental para dentes sensíveis",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.989Z",
+    "updatedAt": "2025-09-20T14:21:00.989Z"
+  },
+  {
+    "id": "e8cd12bb-3357-4041-be27-e76e826920ae",
+    "name": "Água Mineral",
+    "category": {
+      "name": "Bebidas",
+      "slug": "bebidas"
+    },
+    "brand": "Crystal",
+    "unit": "l",
+    "averagePrice": 2,
+    "barcode": "7891234570003",
+    "description": "Água mineral sem gás",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.989Z",
+    "updatedAt": "2025-09-20T14:21:00.989Z"
+  },
+  {
+    "id": "e9c09fcf-e38f-4af3-8cab-168ab39636db",
+    "name": "Pão Integral",
+    "category": {
+      "name": "Padaria",
+      "slug": "padaria"
+    },
+    "brand": "Padaria Central",
+    "unit": "un",
+    "averagePrice": 1,
+    "barcode": "7891234570004",
+    "description": "Pão integral saudável",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.989Z",
+    "updatedAt": "2025-09-20T14:21:00.989Z"
+  },
+  {
+    "id": "38b92dda-63c9-44ac-b5f9-203ae61c3bb9",
+    "name": "Leite Integral",
+    "category": {
+      "name": "Bebidas",
+      "slug": "bebidas"
+    },
+    "brand": "Piracanjuba",
+    "unit": "l",
+    "averagePrice": 4.5,
+    "barcode": "7891234570005",
+    "description": "Leite integral pasteurizado",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.990Z",
+    "updatedAt": "2025-09-20T14:21:00.990Z"
+  },
+  {
+    "id": "a0d873b6-daf5-494f-8f84-9b4d72ada056",
+    "name": "Sabão em Barra",
+    "category": {
+      "name": "Limpeza",
+      "slug": "limpeza"
+    },
+    "brand": "Ypê",
+    "unit": "un",
+    "averagePrice": 3.99,
+    "barcode": "7891234570006",
+    "description": "Sabão em barra para roupas",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.990Z",
+    "updatedAt": "2025-09-20T14:21:00.990Z"
+  },
+  {
+    "id": "5c63c3f5-9beb-4b1b-8433-9f52453e9c9f",
+    "name": "Desinfetante",
+    "category": {
+      "name": "Limpeza",
+      "slug": "limpeza"
+    },
+    "brand": "Veja",
+    "unit": "un",
+    "averagePrice": 7,
+    "barcode": "7891234570007",
+    "description": "Desinfetante multiuso",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.990Z",
+    "updatedAt": "2025-09-20T14:21:00.990Z"
+  },
+  {
+    "id": "d766bc0a-8a36-4c3e-822d-6a40cb5d098c",
+    "name": "Condicionador",
+    "category": {
+      "name": "Higiene",
+      "slug": "higiene"
+    },
+    "brand": "Pantene",
+    "unit": "un",
+    "averagePrice": 14,
+    "barcode": "7891234570008",
+    "description": "Condicionador para cabelos",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.991Z",
+    "updatedAt": "2025-09-20T14:21:00.991Z"
+  },
+  {
+    "id": "60b42c27-ed56-4adf-9e0e-bfea09bbc796",
+    "name": "Café Torrado",
+    "category": {
+      "name": "Alimentos",
+      "slug": "alimentos"
+    },
+    "brand": "Pilão",
+    "unit": "kg",
+    "averagePrice": 18,
+    "barcode": "7891234570009",
+    "description": "Café torrado e moído",
+    "active": true,
+    "createdAt": "2025-09-20T14:21:00.991Z",
+    "updatedAt": "2025-09-20T14:21:00.991Z"
+  },
+  {
+    "id": "1e20e2b8-1a67-4a8a-85ee-5cba1a5cf6d9",
+    "name": "Arroz Cateto Integral",
+    "category": {
+      "name": "Alimentos",
+      "slug": "alimentos"
+    },
+    "brand": "Tio João",
+    "unit": "kg",
+    "averagePrice": 12.99,
+    "barcode": "1111111111111",
+    "description": "Arroz cateto integral orgânico",
+    "active": true,
+    "createdAt": "2025-09-20T14:38:55.106Z",
+    "updatedAt": "2025-09-20T14:38:55.106Z"
+  },
+  {
+    "id": "8b721cdb-6f48-4fd2-a26c-5866ff0e6686",
+    "name": "Feijão Carioca",
+    "category": {
+      "name": "Alimentos",
+      "slug": "alimentos"
+    },
+    "brand": "Camil",
+    "unit": "kg",
+    "averagePrice": 9.99,
+    "barcode": "2222222222222",
+    "description": "Feijão carioca selecionado",
+    "active": true,
+    "createdAt": "2025-09-20T14:44:31.932Z",
+    "updatedAt": "2025-09-20T14:44:31.932Z"
+  },
+  {
+    "id": "057626c5-1ecb-4790-8e37-5a82d11a09ce",
+    "name": "Arroz Cateto Integral",
+    "category": {
+      "name": "Alimentos",
+      "slug": "alimentos"
+    },
+    "brand": "Tio João",
+    "unit": "kg",
+    "averagePrice": 11.5,
+    "barcode": "1111111111111",
+    "description": "Arroz cateto integral com preço atualizado",
+    "active": true,
+    "createdAt": "2025-09-20T14:53:46.625Z",
+    "updatedAt": "2025-09-20T14:54:35.906Z"
+  }
+]
