@@ -414,5 +414,44 @@
     },
     "createdAt": "2025-11-20T19:19:16.899Z",
     "updatedAt": "2025-11-20T19:26:08.323Z"
+  },
+  {
+    "id": "bc68fe71-777c-419c-b7c5-37902f8d2b4b",
+    "name": "Lista Rabbit",
+    "description": "Teste mensageria",
+    "status": "completed",
+    "items": [
+      {
+        "itemId": "cafe",
+        "itemName": "Café",
+        "quantity": 2,
+        "unit": "un",
+        "estimatedPrice": 15.5,
+        "purchased": true,
+        "notes": "Torra média",
+        "addedAt": "2025-11-20T20:46:43.379Z",
+        "purchasedAt": "2025-11-20T20:47:04.860Z"
+      },
+      {
+        "itemId": "pao",
+        "itemName": "Pão",
+        "quantity": 4,
+        "unit": "un",
+        "estimatedPrice": 3.2,
+        "purchased": true,
+        "notes": "Integral",
+        "addedAt": "2025-11-20T20:46:52.767Z",
+        "purchasedAt": "2025-11-20T20:47:04.860Z"
+      }
+    ],
+    "summary": {
+      "totalItems": 2,
+      "purchasedItems": 2,
+      "estimatedTotal": 43.8,
+      "totalSpent": 43.8,
+      "completedAt": "2025-11-20T20:47:04.860Z"
+    },
+    "createdAt": "2025-11-20T20:46:03.667Z",
+    "updatedAt": "2025-11-20T20:47:04.861Z"
   }
 ]

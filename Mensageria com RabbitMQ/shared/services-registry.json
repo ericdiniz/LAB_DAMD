@@ -16,7 +16,7 @@
   "list-service": {
     "url": "http://localhost:3003",
     "healthy": true,
-    "registeredAt": 1763666261631,
-    "pid": 85861
+    "registeredAt": 1763671219675,
+    "pid": 64070
   }
 }

@@ -80,10 +80,12 @@ Saída esperada:
 
    Copiar o `id` retornado (exemplo: `8711fcd7-74b3-4bcc-bc8d-7585701bb1a1`).
 
+bc68fe71-777c-419c-b7c5-37902f8d2b4b
+
 2. **Adicionar itens à lista**
 
    ```bash
-   LIST_ID="COLE_SEU_ID"
+   LIST_ID="bc68fe71-777c-419c-b7c5-37902f8d2b4b"
 
    curl -s -X POST "http://localhost:3003/lists/${LIST_ID}/items" \
      -H 'Content-Type: application/json' \
