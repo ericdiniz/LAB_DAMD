@@ -38,7 +38,9 @@ app.use((error, req, res, next) => {
 
 async function startServer() {
   try {
+    console.log('Starting server bootstrap...');
     await database.init();
+    console.log('Database initialized, booting HTTP server...');
     app.listen(config.port, () => {
       console.log(`Server started on port ${config.port}`);
     });
