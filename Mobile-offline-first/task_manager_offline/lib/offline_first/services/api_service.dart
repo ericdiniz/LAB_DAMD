@@ -23,7 +23,7 @@ class ApiService {
         },
       );
 
-      final response = await http.get(uri).timeout(const Duration(seconds: 10));
+      final response = await http.get(uri).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
@@ -51,7 +51,7 @@ class ApiService {
             headers: const {'Content-Type': 'application/json'},
             body: json.encode(task.toJson()),
           )
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 201) {
         final data = json.decode(response.body) as Map<String, dynamic>;
@@ -76,7 +76,7 @@ class ApiService {
               'version': task.version,
             }),
           )
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
@@ -109,7 +109,7 @@ class ApiService {
           .delete(
             Uri.parse('$baseUrl/tasks/$id?version=$version'),
           )
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 15));
 
       return response.statusCode == 200 || response.statusCode == 404;
     } catch (error) {
@@ -128,7 +128,7 @@ class ApiService {
             headers: const {'Content-Type': 'application/json'},
             body: json.encode({'operations': operations}),
           )
-          .timeout(const Duration(seconds: 30));
+          .timeout(const Duration(seconds: 40));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
@@ -146,7 +146,7 @@ class ApiService {
     try {
       final response = await http
           .get(Uri.parse('$baseUrl/health'))
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(seconds: 8));
 
       return response.statusCode == 200;
     } catch (_) {

@@ -69,6 +69,51 @@ class SyncStatusScreen extends StatelessWidget {
                           ? 'Online'
                           : 'Offline'),
                 ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                        ),
+                        onPressed: () async {
+                          final ok = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Confirmar'),
+                              content: const Text(
+                                  'Deseja limpar toda a fila de sincronização? Essa ação não pode ser desfeita.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(false),
+                                  child: const Text('Cancelar'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(true),
+                                  child: const Text('Confirmar'),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (ok == true) {
+                            await context.read<TaskProvider>().clearSyncQueue();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                        Text('Fila de sincronização limpa')),
+                              );
+                            }
+                          }
+                        },
+                        icon: const Icon(Icons.delete_forever),
+                        label: const Text('Limpar fila'),
+                      ),
+                    ),
+                  ],
+                ),
                 const Spacer(),
                 SizedBox(
                   width: double.infinity,

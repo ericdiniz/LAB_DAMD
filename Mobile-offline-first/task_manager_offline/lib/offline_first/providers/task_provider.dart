@@ -36,11 +36,25 @@ class TaskProvider with ChangeNotifier {
     _syncService.startAutoSync();
     await loadTasks();
 
+    // Atualiza tarefas quando a sincronização termina ou encontra erro/conflict.
     _syncService.syncStatusStream.listen((event) {
-      if (event.type == SyncEventType.completed) {
+      if (event.type == SyncEventType.completed ||
+          event.type == SyncEventType.error ||
+          event.type == SyncEventType.conflictResolved) {
         loadTasks();
       }
     });
+  }
+
+  /// Limpa toda a fila de sincronização (reset)
+  Future<void> clearSyncQueue() async {
+    try {
+      await _db.clearSyncQueue();
+      await loadTasks();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
   }
 
   Future<void> loadTasks() async {

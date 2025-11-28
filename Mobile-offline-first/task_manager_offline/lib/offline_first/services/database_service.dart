@@ -203,6 +203,25 @@ class OfflineDatabaseService {
     );
   }
 
+  /// Limpa toda a fila de sincronização (útil para reset)
+  Future<int> clearSyncQueue() async {
+    final db = await database;
+    final deleted = await db.delete('sync_queue');
+
+    // Marcar tarefas pendentes como erro para não ficar com status "pendente" indefinidamente.
+    await db.update(
+      'tasks',
+      {
+        'syncStatus': '${SyncStatus.error.name}',
+        'localUpdatedAt': null,
+      },
+      where: 'syncStatus = ?',
+      whereArgs: [SyncStatus.pending.name],
+    );
+
+    return deleted;
+  }
+
   // ==================== METADADOS ====================
 
   Future<void> setMetadata(String key, String value) async {
