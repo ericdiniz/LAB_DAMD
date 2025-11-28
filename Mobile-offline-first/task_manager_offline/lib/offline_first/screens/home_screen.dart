@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tarefas Offline-First'),
+        title: const Text('Tarefas Offline-First (DEV BUILD)'),
         actions: [
           IconButton(
             onPressed: _handleManualSync,

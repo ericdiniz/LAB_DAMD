@@ -8,6 +8,10 @@ const bool kEnableOfflineFirstApp = true;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Marca de execução para facilitar identificação da build em execução
+  // Aparece no console quando o app inicia.
+  print(
+      'BUILD MARK: Mobile-offline-first - local changes - ${DateTime.now().toIso8601String()}');
   if (kEnableOfflineFirstApp) {
     runApp(const OfflineFirstApp());
     return;

@@ -44,7 +44,7 @@ cd ~/Documents/GitHub/LAB_DAMD/lab01-servidor-tradicional
 ```bash
 curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"user@test.com","username":"testuser","password":"123456","firstName":"Joao","lastName":"Silva"}'
+  -d '{"email":"user1@test.com","username":"testuser1","password":"1234576","firstName":"Joao1","lastName":"Silva1"}'
 ```
 
 > Caso o usuário já exista, o servidor retornará HTTP 409. Prossiga para o login mesmo assim.
@@ -64,7 +64,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 b) Armazenar o token em uma variável de ambiente (substitua `SEU_TOKEN_AQUI` pelo valor obtido na etapa anterior):
 
 ```bash
-TOKEN=asdasda          # comando pedido para manter a constante disponível
+TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM4NzZhNjdlLTk0MGYtNDFlNy1hM2VlLTA5ZGNjYmM4OWZiMCIsImVtYWlsIjoidXNlckB0ZXN0LmNvbSIsInVzZXJuYW1lIjoidGVzdHVzZXIiLCJpYXQiOjE3NjQyODEzMjksImV4cCI6MTc2NDM2NzcyOX0.oSFfiYHZxyoJuvQUXSQfSvwuFXLFFZSAL8pZ7_iyhdc          # comando pedido para manter a constante disponível
 # TOKEN=SEU_TOKEN_REAL # use esta linha após copiar o token retornado pelo login
 ```
 
