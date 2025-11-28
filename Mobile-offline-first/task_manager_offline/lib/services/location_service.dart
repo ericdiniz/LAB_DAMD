@@ -1,6 +1,51 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
+class LocationService {
+  static final LocationService instance = LocationService._init();
+  LocationService._init();
+
+  Future<bool> checkAndRequestPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return false;
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return false;
+    }
+    if (permission == LocationPermission.deniedForever) return false;
+    return true;
+  }
+
+  Future<Position?> getCurrentLocation() async {
+    try {
+      final ok = await checkAndRequestPermission();
+      if (!ok) return null;
+      return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<String?> getAddressFromCoordinates(double lat, double lon) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(lat, lon);
+      if (placemarks.isNotEmpty) {
+        final p = placemarks.first;
+        final parts = [p.street, p.subLocality, p.locality, p.administrativeArea]
+            .where((s) => s != null && s.isNotEmpty)
+            .take(3)
+            .toList();
+        return parts.join(', ');
+      }
+    } catch (_) {}
+    return null;
+  }
+}
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+
 /// Encapsulates shared logic for requesting permissions and retrieving
 /// geolocation data, keeping widgets free from plugin details.
 class LocationService {

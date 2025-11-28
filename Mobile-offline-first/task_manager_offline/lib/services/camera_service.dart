@@ -2,6 +2,57 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
+class CameraService {
+  static final CameraService instance = CameraService._init();
+  CameraService._init();
+
+  List<CameraDescription>? _cameras;
+
+  Future<void> initialize() async {
+    try {
+      _cameras = await availableCameras();
+    } catch (e) {
+      _cameras = [];
+    }
+  }
+
+  bool get hasCameras => _cameras != null && _cameras!.isNotEmpty;
+
+  CameraDescription? get primaryCamera => hasCameras ? _cameras!.first : null;
+
+  Future<String?> savePicture(XFile image) async {
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final imagesDir = Directory('${appDir.path}/images');
+      if (!await imagesDir.exists()) {
+        await imagesDir.create(recursive: true);
+      }
+      final fileName = 'task_${DateTime.now().millisecondsSinceEpoch}${p.extension(image.path)}';
+      final savePath = p.join(imagesDir.path, fileName);
+      final saved = await File(image.path).copy(savePath);
+      return saved.path;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> deletePhoto(String path) async {
+    try {
+      final f = File(path);
+      if (await f.exists()) await f.delete();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+}
+import 'dart:io';
+
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';

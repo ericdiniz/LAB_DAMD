@@ -14,6 +14,12 @@ class Task {
   final SyncStatus syncStatus;
   final DateTime? localUpdatedAt;
   final DateTime? lastSynced;
+  final String? photoPath;
+  final DateTime? completedAt;
+  final String? completedBy;
+  final double? latitude;
+  final double? longitude;
+  final String? locationName;
 
   Task({
     String? id,
@@ -28,6 +34,12 @@ class Task {
     this.syncStatus = SyncStatus.synced,
     this.localUpdatedAt,
     this.lastSynced,
+    this.photoPath,
+    this.completedAt,
+    this.completedBy,
+    this.latitude,
+    this.longitude,
+    this.locationName,
   })  : id = id ?? const Uuid().v4(),
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
@@ -45,6 +57,12 @@ class Task {
     SyncStatus? syncStatus,
     DateTime? localUpdatedAt,
     DateTime? lastSynced,
+    String? photoPath,
+    DateTime? completedAt,
+    String? completedBy,
+    double? latitude,
+    double? longitude,
+    String? locationName,
   }) {
     return Task(
       id: id,
@@ -59,6 +77,12 @@ class Task {
       syncStatus: syncStatus ?? this.syncStatus,
       localUpdatedAt: localUpdatedAt ?? this.localUpdatedAt,
       lastSynced: lastSynced ?? this.lastSynced,
+      photoPath: photoPath ?? this.photoPath,
+      completedAt: completedAt ?? this.completedAt,
+      completedBy: completedBy ?? this.completedBy,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      locationName: locationName ?? this.locationName,
     );
   }
 
@@ -77,6 +101,12 @@ class Task {
       'syncStatus': syncStatus.name,
       'localUpdatedAt': localUpdatedAt?.millisecondsSinceEpoch,
       'lastSynced': lastSynced?.millisecondsSinceEpoch,
+      'photoPath': photoPath,
+      'completedAt': completedAt?.millisecondsSinceEpoch,
+      'completedBy': completedBy,
+      'latitude': latitude,
+      'longitude': longitude,
+      'locationName': locationName,
     };
   }
 
@@ -95,6 +125,14 @@ class Task {
       syncStatus: _parseSyncStatus(map['syncStatus']) ?? SyncStatus.synced,
       localUpdatedAt: _parseDate(map['localUpdatedAt']),
       lastSynced: _parseDate(map['lastSynced']),
+      photoPath: map['photoPath'] as String?,
+      completedAt: _parseDate(map['completedAt']),
+      completedBy: map['completedBy'] as String?,
+      latitude:
+          map['latitude'] is num ? (map['latitude'] as num).toDouble() : null,
+      longitude:
+          map['longitude'] is num ? (map['longitude'] as num).toDouble() : null,
+      locationName: map['locationName'] as String?,
     );
   }
 
@@ -110,6 +148,12 @@ class Task {
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
       'version': version,
+      'photoPath': photoPath,
+      'completedAt': completedAt?.millisecondsSinceEpoch,
+      'completedBy': completedBy,
+      'latitude': latitude,
+      'longitude': longitude,
+      'locationName': locationName,
     };
   }
 

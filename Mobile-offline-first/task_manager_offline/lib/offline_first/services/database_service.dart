@@ -13,6 +13,7 @@ class OfflineDatabaseService {
 
   static const _dbName = 'task_manager_offline.db';
   static const _dbVersion = 1;
+  static const _dbNewVersion = 2;
 
   Future<Database> get database async {
     if (_database != null) {
@@ -28,8 +29,9 @@ class OfflineDatabaseService {
 
     return openDatabase(
       path,
-      version: _dbVersion,
+      version: _dbNewVersion,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -47,7 +49,13 @@ class OfflineDatabaseService {
         version INTEGER NOT NULL DEFAULT 1,
         syncStatus TEXT NOT NULL,
         localUpdatedAt INTEGER,
-        lastSynced INTEGER
+        lastSynced INTEGER,
+        photoPath TEXT,
+        completedAt INTEGER,
+        completedBy TEXT,
+        latitude REAL,
+        longitude REAL,
+        locationName TEXT
       )
     ''');
 
@@ -75,6 +83,17 @@ class OfflineDatabaseService {
     await db.execute('CREATE INDEX idx_tasks_syncStatus ON tasks(syncStatus)');
     await db
         .execute('CREATE INDEX idx_sync_queue_status ON sync_queue(status)');
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE tasks ADD COLUMN photoPath TEXT');
+      await db.execute('ALTER TABLE tasks ADD COLUMN completedAt INTEGER');
+      await db.execute('ALTER TABLE tasks ADD COLUMN completedBy TEXT');
+      await db.execute('ALTER TABLE tasks ADD COLUMN latitude REAL');
+      await db.execute('ALTER TABLE tasks ADD COLUMN longitude REAL');
+      await db.execute('ALTER TABLE tasks ADD COLUMN locationName TEXT');
+    }
   }
 
   // ==================== OPERAÇÕES DE TAREFAS ====================

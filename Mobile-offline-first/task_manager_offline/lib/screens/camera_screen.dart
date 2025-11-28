@@ -1,6 +1,82 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
+class CameraScreen extends StatefulWidget {
+  final CameraController controller;
+  const CameraScreen({super.key, required this.controller});
+
+  @override
+  State<CameraScreen> createState() => _CameraScreenState();
+}
+
+class _CameraScreenState extends State<CameraScreen> {
+  bool _capturing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.controller.value.isInitialized) {
+      widget.controller.initialize().then((_) {
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
+  Future<void> _takePicture() async {
+    if (_capturing || !widget.controller.value.isInitialized) return;
+    setState(() => _capturing = true);
+    try {
+      final file = await widget.controller.takePicture();
+      if (mounted) Navigator.pop(context, file.path);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao capturar: $e')));
+    } finally {
+      if (mounted) setState(() => _capturing = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      widget.controller.dispose();
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.controller.value.isInitialized) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          CameraPreview(widget.controller),
+          Positioned(
+            bottom: 32,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: FloatingActionButton(
+                onPressed: _takePicture,
+                child: const Icon(Icons.camera_alt),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+
 import '../services/camera_service.dart';
 
 class CameraScreen extends StatefulWidget {

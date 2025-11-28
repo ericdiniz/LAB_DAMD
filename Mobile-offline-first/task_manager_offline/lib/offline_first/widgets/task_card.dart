@@ -63,6 +63,19 @@ class OfflineTaskCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   _buildTag(task.syncStatus.icon, _syncStatusColor()),
                   const SizedBox(width: 8),
+                  if (task.photoPath != null) ...[
+                    const Icon(Icons.photo, size: 16, color: Colors.grey),
+                    const SizedBox(width: 6),
+                  ],
+                  if (task.latitude != null && task.longitude != null) ...[
+                    const Icon(Icons.place, size: 16, color: Colors.grey),
+                    const SizedBox(width: 6),
+                  ],
+                  if (task.completedBy != null &&
+                      task.completedBy == 'shake') ...[
+                    const Icon(Icons.vibration, size: 16, color: Colors.grey),
+                    const SizedBox(width: 6),
+                  ],
                   if (task.syncStatus == SyncStatus.synced)
                     _buildTag('Sincronizado', const Color(0xFF66BB6A)),
                   const SizedBox(width: 8),

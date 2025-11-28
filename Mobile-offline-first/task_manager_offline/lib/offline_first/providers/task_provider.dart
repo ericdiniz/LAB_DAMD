@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../services/camera_service.dart';
 import '../models/sync_operation.dart';
 import '../models/task.dart';
 import '../services/connectivity_service.dart';
@@ -36,6 +37,19 @@ class TaskProvider with ChangeNotifier {
 
   Future<void> initialize() async {
     _syncService.startAutoSync();
+
+    // Inicializa recursos nativos opcionais (câmera / localização)
+    try {
+      await CameraService.instance.initialize();
+    } catch (_) {}
+
+    try {
+      // não forçamos permissão aqui — apenas inicializamos o helper
+      // permissões são solicitadas quando necessário na UI
+      // (LocationService tem métodos para checar/solicitar permissão).
+      // nada a fazer aqui além de garantir que o singleton esteja pronto.
+    } catch (_) {}
+
     await loadTasks();
 
     // Atualiza tarefas quando a sincronização termina ou encontra erro/conflict.
@@ -115,6 +129,10 @@ class TaskProvider with ChangeNotifier {
     required String title,
     required String description,
     String priority = 'medium',
+    String? photoPath,
+    double? latitude,
+    double? longitude,
+    String? locationName,
   }) async {
     try {
       if (kDebugMode) {
@@ -126,6 +144,10 @@ class TaskProvider with ChangeNotifier {
         description: description,
         priority: priority,
         userId: _userId,
+        photoPath: photoPath,
+        latitude: latitude,
+        longitude: longitude,
+        locationName: locationName,
       );
       await _syncService.createTask(task);
       if (kDebugMode) {
@@ -171,6 +193,28 @@ class TaskProvider with ChangeNotifier {
     final result = await _syncService.sync();
     await loadTasks();
     return result;
+  }
+
+  /// Safe sync wrapper: optional delay to let network settle, catches errors
+  /// and prevents exceptions from propagating to callers (useful when
+  /// invoked from connectivity listeners where native debugger may detach).
+  Future<void> safeSync({Duration delay = const Duration(seconds: 2)}) async {
+    try {
+      if (delay > Duration.zero) {
+        await Future.delayed(delay);
+      }
+      final result = await sync();
+      if (kDebugMode) {
+        debugPrint('TaskProvider.safeSync: ${result.message}');
+      }
+    } catch (e, st) {
+      _error = e.toString();
+      if (kDebugMode) {
+        debugPrint('TaskProvider.safeSync error: $e');
+        debugPrintStack(stackTrace: st);
+      }
+      notifyListeners();
+    }
   }
 
   Future<SyncStats> getSyncStats() => _syncService.getStats();

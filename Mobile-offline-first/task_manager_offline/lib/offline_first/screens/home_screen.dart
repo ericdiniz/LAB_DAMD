@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../services/sensor_service.dart';
 import '../models/task.dart';
 import '../providers/task_provider.dart';
 import '../services/connectivity_service.dart';
@@ -28,6 +30,60 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _initializeConnectivity();
+    // iniciar detecção de "shake" para ações rápidas
+    try {
+      SensorService.instance.startShakeDetection(() {
+        if (!mounted) return;
+        _onShakeDetected();
+      });
+    } catch (_) {}
+  }
+
+  void _onShakeDetected() async {
+    final provider = context.read<TaskProvider>();
+    final pending = provider.pendingTasks;
+    if (pending.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('🎉 Nenhuma tarefa pendente!')),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text('Completar tarefas por shake'),
+        content: Text(
+            'Deseja marcar ${pending.length} tarefa(s) como concluída(s)?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(c).pop(false),
+              child: const Text('Cancelar')),
+          TextButton(
+              onPressed: () => Navigator.of(c).pop(true),
+              child: const Text('Sim')),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      for (final t in pending) {
+        await provider.updateTask(
+          t.copyWith(
+              completed: true,
+              completedAt: DateTime.now(),
+              completedBy: 'shake'),
+        );
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('${pending.length} tarefa(s) marcadas como concluídas')),
+      );
+    }
   }
 
   Future<void> _initializeConnectivity() async {
@@ -35,19 +91,39 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _isOnline = _connectivity.isOnline);
 
     _connectivity.connectivityStream.listen((isOnline) {
-      if (!mounted) {
-        return;
-      }
-      setState(() => _isOnline = isOnline);
-      if (isOnline) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('🟢 Conectado - sincronizando...')),
-        );
-        context.read<TaskProvider>().sync();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('🔴 Modo offline')),
-        );
+      try {
+        if (!mounted) {
+          return;
+        }
+        setState(() => _isOnline = isOnline);
+        if (isOnline) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('🟢 Conectado - sincronizando...')),
+          );
+          // Disparar sincronização 'segura' com pequeno delay para evitar
+          // problemas no momento exato da transição de rede (stack nativa ainda
+          // se estabilizando). não await aqui (fire-and-forget) para não bloquear UI.
+          try {
+            // ignore: unawaited_futures
+            context
+                .read<TaskProvider>()
+                .safeSync(delay: const Duration(seconds: 2));
+          } catch (e, st) {
+            if (kDebugMode) {
+              debugPrint('Erro ao disparar safeSync no listener: $e');
+              debugPrintStack(stackTrace: st);
+            }
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('🔴 Modo offline')),
+          );
+        }
+      } catch (e, st) {
+        if (kDebugMode) {
+          debugPrint('Erro no listener de conectividade: $e');
+          debugPrintStack(stackTrace: st);
+        }
       }
     });
 

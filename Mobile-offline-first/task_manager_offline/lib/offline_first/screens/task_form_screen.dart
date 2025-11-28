@@ -1,6 +1,12 @@
+import 'dart:io';
+
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../screens/camera_screen.dart';
+import '../../services/camera_service.dart';
+import '../../widgets/location_picker.dart';
 import '../models/task.dart';
 import '../providers/task_provider.dart';
 import '../utils/constants.dart';
@@ -20,6 +26,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   late TextEditingController _descriptionController;
   late String _priority;
   bool _isSaving = false;
+  String? _photoPath;
+  double? _latitude;
+  double? _longitude;
+  String? _locationName;
 
   @override
   void initState() {
@@ -35,6 +45,60 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _takePicture() async {
+    if (!CameraService.instance.hasCameras) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Nenhuma câmera disponível')));
+      return;
+    }
+    final camera = CameraService.instance.primaryCamera!;
+    final controller =
+        CameraController(camera, ResolutionPreset.medium, enableAudio: false);
+    try {
+      await controller.initialize();
+      final path = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => CameraScreen(controller: controller)),
+      );
+      if (path != null) {
+        // save to app-managed directory
+        final saved = await CameraService.instance.savePicture(XFile(path));
+        if (saved != null) setState(() => _photoPath = saved);
+      }
+    } catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Erro câmera: $e')));
+    } finally {
+      try {
+        controller.dispose();
+      } catch (_) {}
+    }
+  }
+
+  void _showLocationPicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (c) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(c).viewInsets.bottom),
+        child: LocationPicker(
+          initialLatitude: _latitude,
+          initialLongitude: _longitude,
+          initialAddress: _locationName,
+          onLocationSelected: (lat, lon, addr) {
+            setState(() {
+              _latitude = lat;
+              _longitude = lon;
+              _locationName = addr;
+            });
+            Navigator.of(c).pop();
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -99,6 +163,50 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                 },
               ),
               const SizedBox(height: 24),
+              if (_photoPath != null) ...[
+                Row(
+                  children: [
+                    Image.file(
+                      File(_photoPath!),
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.cover,
+                    ),
+                    const SizedBox(width: 12),
+                    TextButton.icon(
+                      onPressed: () async {
+                        final deleted = await CameraService.instance
+                            .deletePhoto(_photoPath!);
+                        if (deleted) setState(() => _photoPath = null);
+                      },
+                      icon: const Icon(Icons.delete),
+                      label: const Text('Remover foto'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ],
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _takePicture,
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text('Tirar foto'),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton.icon(
+                    onPressed: _showLocationPicker,
+                    icon: const Icon(Icons.my_location),
+                    label: const Text('Localização'),
+                  ),
+                ],
+              ),
+              if (_latitude != null && _longitude != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                    'Localização selecionada: ${_locationName ?? ''} (${_latitude!.toStringAsFixed(5)}, ${_longitude!.toStringAsFixed(5)})'),
+              ],
+              const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -128,6 +236,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
           priority: _priority,
+          photoPath: _photoPath,
+          latitude: _latitude,
+          longitude: _longitude,
+          locationName: _locationName,
         );
       } else {
         await provider.updateTask(
@@ -136,6 +248,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             description: _descriptionController.text.trim(),
             priority: _priority,
             localUpdatedAt: DateTime.now(),
+            photoPath: _photoPath,
+            latitude: _latitude,
+            longitude: _longitude,
+            locationName: _locationName,
           ),
         );
       }

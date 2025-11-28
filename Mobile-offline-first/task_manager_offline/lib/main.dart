@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'offline_first/app.dart';
 import 'screens/task_list_screen.dart';
-import 'services/camera_service.dart';
 
 const bool kEnableOfflineFirstApp = true;
 
@@ -15,12 +16,27 @@ Future<void> main() async {
     debugPrint(
         'BUILD MARK: Mobile-offline-first - local changes - ${DateTime.now().toIso8601String()}');
   }
-  if (kEnableOfflineFirstApp) {
-    runApp(const OfflineFirstApp());
-    return;
-  }
-  await CameraService.instance.initialize();
-  runApp(const MyApp());
+
+  // Evita que exceções não tratadas encerrem o app quando executando no dispositivo
+  // especialmente útil ao depurar com o Xcode e em cenários de perda de conexão.
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (kDebugMode) {
+      FlutterError.dumpErrorToConsole(details);
+    }
+  };
+
+  runZonedGuarded(() {
+    if (kEnableOfflineFirstApp) {
+      runApp(const OfflineFirstApp());
+      return;
+    }
+    runApp(const MyApp());
+  }, (error, stack) {
+    if (kDebugMode) {
+      debugPrint('Uncaught async error: $error');
+      debugPrintStack(stackTrace: stack);
+    }
+  });
 }
 
 class MyApp extends StatelessWidget {

@@ -1,4 +1,106 @@
 import 'package:flutter/material.dart';
+import '../services/location_service.dart';
+
+class LocationPicker extends StatefulWidget {
+  final double? initialLatitude;
+  final double? initialLongitude;
+  final String? initialAddress;
+  final void Function(double lat, double lon, String? address) onLocationSelected;
+
+  const LocationPicker({
+    super.key,
+    this.initialLatitude,
+    this.initialLongitude,
+    this.initialAddress,
+    required this.onLocationSelected,
+  });
+
+  @override
+  State<LocationPicker> createState() => _LocationPickerState();
+}
+
+class _LocationPickerState extends State<LocationPicker> {
+  final _controller = TextEditingController();
+  bool _loading = false;
+  double? _lat;
+  double? _lon;
+  String? _addr;
+
+  @override
+  void initState() {
+    super.initState();
+    _lat = widget.initialLatitude;
+    _lon = widget.initialLongitude;
+    _addr = widget.initialAddress;
+    _controller.text = widget.initialAddress ?? '';
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _getCurrent() async {
+    setState(() => _loading = true);
+    final res = await LocationService.instance.getCurrentLocation();
+    if (res != null && mounted) {
+      final addr = await LocationService.instance.getAddressFromCoordinates(res.latitude, res.longitude);
+      setState(() {
+        _lat = res.latitude;
+        _lon = res.longitude;
+        _addr = addr;
+        _controller.text = addr ?? '';
+      });
+      widget.onLocationSelected(_lat!, _lon!, _addr);
+    }
+    if (mounted) setState(() => _loading = false);
+  }
+
+  Future<void> _searchAddress() async {
+    if (_controller.text.trim().isEmpty) return;
+    setState(() => _loading = true);
+    final pos = await LocationService.instance.getLocationFromAddress(_controller.text.trim());
+    if (pos != null && mounted) {
+      final addr = _controller.text.trim();
+      setState(() {
+        _lat = pos.latitude;
+        _lon = pos.longitude;
+        _addr = addr;
+      });
+      widget.onLocationSelected(_lat!, _lon!, _addr);
+    }
+    if (mounted) setState(() => _loading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('Selecionar Localização', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          TextField(controller: _controller, decoration: const InputDecoration(labelText: 'Endereço'), onSubmitted: (_) => _searchAddress()),
+          const SizedBox(height: 12),
+          Row(children: [
+            Expanded(child: ElevatedButton.icon(onPressed: _loading ? null : _getCurrent, icon: const Icon(Icons.my_location), label: const Text('Usar localização'))),
+            const SizedBox(width: 8),
+            ElevatedButton.icon(onPressed: _loading ? null : _searchAddress, icon: const Icon(Icons.search), label: const Text('Buscar')),
+          ]),
+          if (_lat != null && _lon != null) ...[
+            const SizedBox(height: 12),
+            Text('Lat: ${_lat!.toStringAsFixed(6)} Lon: ${_lon!.toStringAsFixed(6)}'),
+            if (_addr != null) Text('Endereço: $_addr'),
+          ],
+        ],
+      ),
+    );
+  }
+}
+import 'package:flutter/material.dart';
 
 import '../services/location_service.dart';
 

@@ -4,6 +4,55 @@ import 'dart:math' as math;
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:vibration/vibration.dart';
 
+class SensorService {
+  static final SensorService instance = SensorService._init();
+  SensorService._init();
+
+  StreamSubscription<AccelerometerEvent>? _sub;
+  void Function()? _onShake;
+  bool _active = false;
+
+  static const double _shakeThreshold = 15.0;
+  static const Duration _shakeCooldown = Duration(milliseconds: 500);
+  DateTime? _lastShake;
+
+  void startShakeDetection(void Function() onShake) {
+    if (_active) return;
+    _onShake = onShake;
+    _sub = accelerometerEvents.listen(_handle);
+    _active = true;
+  }
+
+  void _handle(AccelerometerEvent e) {
+    final now = DateTime.now();
+    if (_lastShake != null && now.difference(_lastShake!) < _shakeCooldown) {
+      return;
+    }
+    final mag = math.sqrt(e.x * e.x + e.y * e.y + e.z * e.z);
+    if (mag > _shakeThreshold) {
+      _lastShake = now;
+      try {
+        Vibration.hasVibrator().then((has) {
+          if (has == true) Vibration.vibrate(duration: 100);
+        });
+      } catch (_) {}
+      _onShake?.call();
+    }
+  }
+
+  void stop() {
+    _sub?.cancel();
+    _sub = null;
+    _onShake = null;
+    _active = false;
+  }
+}
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:sensors_plus/sensors_plus.dart';
+import 'package:vibration/vibration.dart';
+
 /// Handles accelerometer readings to detect "shake" gestures.
 class SensorService {
   SensorService._();
