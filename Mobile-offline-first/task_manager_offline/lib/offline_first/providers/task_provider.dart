@@ -117,6 +117,10 @@ class TaskProvider with ChangeNotifier {
     String priority = 'medium',
   }) async {
     try {
+      if (kDebugMode) {
+        debugPrint(
+            'TaskProvider.createTask: creating task locally title="$title"');
+      }
       final task = Task(
         title: title,
         description: description,
@@ -124,9 +128,13 @@ class TaskProvider with ChangeNotifier {
         userId: _userId,
       );
       await _syncService.createTask(task);
+      if (kDebugMode) {
+        debugPrint('TaskProvider.createTask: created task id=${task.id}');
+      }
       await loadTasks();
     } catch (error) {
       _error = error.toString();
+      if (kDebugMode) debugPrint('TaskProvider.createTask error: $_error');
       notifyListeners();
     }
   }

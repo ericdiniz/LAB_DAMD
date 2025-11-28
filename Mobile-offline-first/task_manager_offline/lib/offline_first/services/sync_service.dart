@@ -259,29 +259,39 @@ class SyncService {
   }
 
   Future<Task> createTask(Task task) async {
-    final now = DateTime.now();
-    final saved = await _db.upsertTask(
-      task.copyWith(
-        syncStatus: SyncStatus.pending,
-        localUpdatedAt: now,
-        updatedAt: now,
-        userId: _userId,
-      ),
-    );
+    try {
+      final now = DateTime.now();
+      final saved = await _db.upsertTask(
+        task.copyWith(
+          syncStatus: SyncStatus.pending,
+          localUpdatedAt: now,
+          updatedAt: now,
+          userId: _userId,
+        ),
+      );
 
-    await _db.addToSyncQueue(
-      SyncOperation(
-        type: OperationType.create,
-        taskId: saved.id,
-        data: saved.toJson(),
-      ),
-    );
+      await _db.addToSyncQueue(
+        SyncOperation(
+          type: OperationType.create,
+          taskId: saved.id,
+          data: saved.toJson(),
+        ),
+      );
 
-    if (_connectivity.isOnline) {
-      unawaited(sync());
+      if (_connectivity.isOnline) {
+        // Fire-and-forget sync; avoid bringing new dependency just for `unawaited`.
+        // ignore: unawaited_futures
+        sync();
+      }
+
+      return saved;
+    } catch (e, st) {
+      if (kDebugMode) {
+        debugPrint('SyncService.createTask error: $e');
+        debugPrintStack(stackTrace: st);
+      }
+      rethrow;
     }
-
-    return saved;
   }
 
   Future<Task> updateTask(Task task) async {
