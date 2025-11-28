@@ -46,7 +46,8 @@ class OfflineDatabaseService {
         updatedAt INTEGER NOT NULL,
         version INTEGER NOT NULL DEFAULT 1,
         syncStatus TEXT NOT NULL,
-        localUpdatedAt INTEGER
+        localUpdatedAt INTEGER,
+        lastSynced INTEGER
       )
     ''');
 
@@ -133,6 +134,17 @@ class OfflineDatabaseService {
     return maps.map(Task.fromMap).toList();
   }
 
+  Future<List<Task>> getErrorTasks() async {
+    final db = await database;
+    final maps = await db.query(
+      'tasks',
+      where: 'syncStatus = ?',
+      whereArgs: [SyncStatus.error.name],
+      orderBy: 'updatedAt DESC',
+    );
+    return maps.map(Task.fromMap).toList();
+  }
+
   Future<int> deleteTask(String id) async {
     final db = await database;
     return db.delete('tasks', where: 'id = ?', whereArgs: [id]);
@@ -212,7 +224,7 @@ class OfflineDatabaseService {
     await db.update(
       'tasks',
       {
-        'syncStatus': '${SyncStatus.error.name}',
+        'syncStatus': SyncStatus.error.name,
         'localUpdatedAt': null,
       },
       where: 'syncStatus = ?',

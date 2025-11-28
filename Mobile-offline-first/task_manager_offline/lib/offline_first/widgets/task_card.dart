@@ -24,6 +24,9 @@ class OfflineTaskCard extends StatelessWidget {
       OfflineConstants.priorityColors[task.priority] ?? 0xFF64B5F6,
     );
     final updatedAt = DateFormat.yMd().add_Hm().format(task.updatedAt);
+    final lastSyncedStr = task.lastSynced != null
+        ? DateFormat.yMd().add_Hm().format(task.lastSynced!)
+        : null;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -60,7 +63,14 @@ class OfflineTaskCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   _buildTag(task.syncStatus.icon, _syncStatusColor()),
                   const SizedBox(width: 8),
+                  if (task.syncStatus == SyncStatus.synced)
+                    _buildTag('Sincronizado', const Color(0xFF66BB6A)),
+                  const SizedBox(width: 8),
                   Text('Atualizado: $updatedAt'),
+                  if (lastSyncedStr != null) ...[
+                    const SizedBox(width: 8),
+                    Text('Synced: $lastSyncedStr'),
+                  ],
                 ],
               ),
             ),
@@ -93,7 +103,7 @@ class OfflineTaskCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withAlpha((0.15 * 255).round()),
         borderRadius: const BorderRadius.all(Radius.circular(12)),
       ),
       child: Text(

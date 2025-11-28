@@ -13,6 +13,7 @@ class Task {
   final int version;
   final SyncStatus syncStatus;
   final DateTime? localUpdatedAt;
+  final DateTime? lastSynced;
 
   Task({
     String? id,
@@ -26,6 +27,7 @@ class Task {
     this.version = 1,
     this.syncStatus = SyncStatus.synced,
     this.localUpdatedAt,
+    this.lastSynced,
   })  : id = id ?? const Uuid().v4(),
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
@@ -42,6 +44,7 @@ class Task {
     int? version,
     SyncStatus? syncStatus,
     DateTime? localUpdatedAt,
+    DateTime? lastSynced,
   }) {
     return Task(
       id: id,
@@ -55,6 +58,7 @@ class Task {
       version: version ?? this.version,
       syncStatus: syncStatus ?? this.syncStatus,
       localUpdatedAt: localUpdatedAt ?? this.localUpdatedAt,
+      lastSynced: lastSynced ?? this.lastSynced,
     );
   }
 
@@ -72,6 +76,7 @@ class Task {
       'version': version,
       'syncStatus': syncStatus.name,
       'localUpdatedAt': localUpdatedAt?.millisecondsSinceEpoch,
+      'lastSynced': lastSynced?.millisecondsSinceEpoch,
     };
   }
 
@@ -89,6 +94,7 @@ class Task {
       version: (map['version'] ?? 1) as int,
       syncStatus: _parseSyncStatus(map['syncStatus']) ?? SyncStatus.synced,
       localUpdatedAt: _parseDate(map['localUpdatedAt']),
+      lastSynced: _parseDate(map['lastSynced']),
     );
   }
 
@@ -120,6 +126,7 @@ class Task {
       updatedAt: _parseDate(json['updatedAt']) ?? DateTime.now(),
       version: (json['version'] ?? 1) as int,
       syncStatus: SyncStatus.synced,
+      lastSynced: _parseDate(json['lastSynced']),
     );
   }
 

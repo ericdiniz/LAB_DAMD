@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/sync_operation.dart';
 import '../models/task.dart';
+import '../services/connectivity_service.dart';
 import '../services/database_service.dart';
 import '../services/sync_service.dart';
 
@@ -51,6 +53,41 @@ class TaskProvider with ChangeNotifier {
     try {
       await _db.clearSyncQueue();
       await loadTasks();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
+  /// Re-enfileira todas as tarefas com `syncStatus == error` como operações de update
+  Future<void> retryAll() async {
+    try {
+      final errorTasks = await _db.getErrorTasks();
+      for (final t in errorTasks) {
+        final now = DateTime.now();
+        final updated = t.copyWith(
+          syncStatus: SyncStatus.pending,
+          localUpdatedAt: now,
+          updatedAt: now,
+        );
+        await _db.upsertTask(updated);
+        await _db.addToSyncQueue(
+          SyncOperation(
+            type: OperationType.update,
+            taskId: updated.id,
+            data: updated.toJson(),
+          ),
+        );
+      }
+
+      await loadTasks();
+      // Se estiver online, dispara sincronização
+      if (ConnectivityService.instance.isOnline) {
+        // Start sync without awaiting. Avoid adding a new dependency for `unawaited`.
+        // The ignore comment silences the `unawaited_futures` linter for this line.
+        // ignore: unawaited_futures
+        _syncService.sync();
+      }
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -135,4 +172,7 @@ class TaskProvider with ChangeNotifier {
     _syncService.dispose();
     super.dispose();
   }
+
+  /// Expose sync events stream to UI for SnackBars and notifications
+  Stream<SyncEvent> get syncStream => _syncService.syncStatusStream;
 }

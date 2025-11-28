@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import '../models/sync_operation.dart';
 import '../models/task.dart';
 import 'api_service.dart';
@@ -35,6 +37,22 @@ class SyncService {
       return SyncResult(
         success: false,
         message: 'Sem conexão com internet',
+      );
+    }
+
+    // Verifica se o servidor está acessível antes de iniciar operações que possam timeout.
+    try {
+      final serverOk = await _api.checkConnectivity();
+      if (!serverOk) {
+        return SyncResult(
+          success: false,
+          message: 'Servidor inacessível (health check falhou)',
+        );
+      }
+    } catch (e) {
+      return SyncResult(
+        success: false,
+        message: 'Erro ao verificar servidor: $e',
       );
     }
 
@@ -87,6 +105,13 @@ class SyncService {
         await _db.removeSyncOperation(operation.id);
         successCount += 1;
       } catch (error) {
+        // Log detalhado para debugging
+        try {
+          if (kDebugMode) {
+            debugPrint(
+                'SYNC ERROR: operação ${operation.id} tipo=${operation.type} task=${operation.taskId} erro=$error');
+          }
+        } catch (_) {}
         final retries = operation.retries + 1;
         final status = retries >= 3
             ? SyncOperationStatus.failed
@@ -131,6 +156,7 @@ class SyncService {
         syncStatus: SyncStatus.synced,
         localUpdatedAt: null,
         updatedAt: serverTask.updatedAt,
+        lastSynced: DateTime.now(),
       ),
     );
   }
@@ -154,6 +180,7 @@ class SyncService {
           syncStatus: SyncStatus.synced,
           updatedAt: updatedTask.updatedAt,
           localUpdatedAt: null,
+          lastSynced: DateTime.now(),
         ),
       );
     }
@@ -182,6 +209,7 @@ class SyncService {
         await _db.upsertTask(
           serverTask.copyWith(
             syncStatus: SyncStatus.synced,
+            lastSynced: DateTime.now(),
           ),
         );
       } else if (localTask.syncStatus == SyncStatus.synced) {
@@ -218,6 +246,7 @@ class SyncService {
       winner.copyWith(
         syncStatus: SyncStatus.synced,
         localUpdatedAt: null,
+        lastSynced: DateTime.now(),
       ),
     );
 

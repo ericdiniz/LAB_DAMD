@@ -32,7 +32,7 @@ class SyncIndicator extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.2),
+              color: Colors.orange.withAlpha((0.2 * 255).round()),
               borderRadius: const BorderRadius.all(Radius.circular(12)),
             ),
             child: Text(

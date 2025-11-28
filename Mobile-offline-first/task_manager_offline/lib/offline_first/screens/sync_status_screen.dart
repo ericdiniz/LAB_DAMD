@@ -98,6 +98,7 @@ class SyncStatusScreen extends StatelessWidget {
                           );
 
                           if (ok == true) {
+                            if (!context.mounted) return;
                             await context.read<TaskProvider>().clearSyncQueue();
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -112,6 +113,22 @@ class SyncStatusScreen extends StatelessWidget {
                         label: const Text('Limpar fila'),
                       ),
                     ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final provider = context.read<TaskProvider>();
+                          await provider.retryAll();
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Re-enfileiramento concluído')),
+                          );
+                        },
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Retry all'),
+                      ),
+                    ),
                   ],
                 ),
                 const Spacer(),
@@ -119,17 +136,17 @@ class SyncStatusScreen extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () async {
+                      if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('🔄 Sincronizando...')),
                       );
-                      final result = await context.read<TaskProvider>().sync();
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(result.message)),
-                        );
-                        // Força rebuild para mostrar dados atualizados
-                        (context as Element).reassemble();
-                      }
+                      final provider = context.read<TaskProvider>();
+                      final result = await provider.sync();
+                      await provider.loadTasks();
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(result.message)),
+                      );
                     },
                     icon: const Icon(Icons.sync),
                     label: const Text('Sincronizar agora'),
@@ -153,7 +170,7 @@ class SyncStatusScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.15),
+          backgroundColor: color.withAlpha((0.15 * 255).round()),
           child: Icon(icon, color: color),
         ),
         title: Text(title),

@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/task.dart';
 import '../providers/task_provider.dart';
 import '../services/connectivity_service.dart';
+import '../services/sync_service.dart';
 import '../widgets/sync_indicator.dart';
 import '../widgets/task_card.dart';
 import 'sync_status_screen.dart';
@@ -19,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ConnectivityService _connectivity = ConnectivityService.instance;
   bool _isOnline = true;
+  StreamSubscription<SyncEvent>? _syncSub;
 
   @override
   void initState() {
@@ -45,6 +49,32 @@ class _HomeScreenState extends State<HomeScreen> {
           const SnackBar(content: Text('🔴 Modo offline')),
         );
       }
+    });
+
+    // Inscrever-se em eventos de sincronização para notificar usuário quando terminar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final provider = context.read<TaskProvider>();
+        _syncSub = provider.syncStream.listen((event) {
+          if (!mounted) return;
+          String message;
+          if (event.type == SyncEventType.completed) {
+            final pushed = event.data?['pushed'] ?? 0;
+            final pulled = event.data?['pulled'] ?? 0;
+            message = 'Sincronização finalizada (push: $pushed, pull: $pulled)';
+          } else if (event.type == SyncEventType.error) {
+            message = 'Erro na sincronização: ${event.message}';
+          } else if (event.type == SyncEventType.conflictResolved) {
+            message = 'Conflito resolvido: ${event.message}';
+          } else {
+            return;
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        });
+      } catch (_) {}
     });
   }
 
@@ -121,6 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     final result = await provider.sync();
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(result.message)),
     );
@@ -140,5 +171,11 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => const SyncStatusScreen(),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _syncSub?.cancel();
+    super.dispose();
   }
 }

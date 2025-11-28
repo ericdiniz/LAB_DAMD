@@ -81,7 +81,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _priority,
+                initialValue: _priority,
                 decoration: const InputDecoration(labelText: 'Prioridade'),
                 items: OfflineConstants.priorities.entries
                     .map(
@@ -140,13 +140,14 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
         );
       }
 
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+      if (!mounted) return;
+      Navigator.of(context).pop();
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar: $error')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao salvar: $error')),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
