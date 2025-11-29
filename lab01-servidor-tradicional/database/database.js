@@ -33,11 +33,14 @@ class Database {
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (userId) REFERENCES users (id)
       )`;
-    return Promise.all([this.run(userTable), this.run(taskTable)]);
+    // Executa criação de tabelas sequencialmente para evitar conflitos de I/O
+    await this.run(userTable);
+    await this.run(taskTable);
+    return { ok: true };
   }
   run(sql, params = []) {
     return new Promise((resolve, reject) => {
-      this.db.run(sql, params, function(err) {
+      this.db.run(sql, params, function (err) {
         if (err) reject(err);
         else resolve({ id: this.lastID, changes: this.changes });
       });

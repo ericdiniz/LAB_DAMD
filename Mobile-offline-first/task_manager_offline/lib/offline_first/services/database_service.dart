@@ -12,7 +12,6 @@ class OfflineDatabaseService {
   static Database? _database;
 
   static const _dbName = 'task_manager_offline.db';
-  static const _dbVersion = 1;
   static const _dbNewVersion = 2;
 
   Future<Database> get database async {

@@ -1,53 +1,8 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
-class LocationService {
-  static final LocationService instance = LocationService._init();
-  LocationService._init();
-
-  Future<bool> checkAndRequestPermission() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return false;
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return false;
-    }
-    if (permission == LocationPermission.deniedForever) return false;
-    return true;
-  }
-
-  Future<Position?> getCurrentLocation() async {
-    try {
-      final ok = await checkAndRequestPermission();
-      if (!ok) return null;
-      return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<String?> getAddressFromCoordinates(double lat, double lon) async {
-    try {
-      final placemarks = await placemarkFromCoordinates(lat, lon);
-      if (placemarks.isNotEmpty) {
-        final p = placemarks.first;
-        final parts = [p.street, p.subLocality, p.locality, p.administrativeArea]
-            .where((s) => s != null && s.isNotEmpty)
-            .take(3)
-            .toList();
-        return parts.join(', ');
-      }
-    } catch (_) {}
-    return null;
-  }
-}
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
-
-/// Encapsulates shared logic for requesting permissions and retrieving
-/// geolocation data, keeping widgets free from plugin details.
+/// Serviço de localização que encapsula permissões, leitura de GPS e
+/// geocodificação reversa/forward.
 class LocationService {
   LocationService._();
 
@@ -55,9 +10,7 @@ class LocationService {
 
   Future<bool> _ensurePermission() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return false;
-    }
+    if (!serviceEnabled) return false;
 
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -73,15 +26,12 @@ class LocationService {
   }
 
   Future<Position?> getCurrentPosition() async {
-    final hasPermission = await _ensurePermission();
-    if (!hasPermission) {
-      return null;
-    }
+    final ok = await _ensurePermission();
+    if (!ok) return null;
 
     try {
-      return Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      return await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
     } catch (_) {
       return null;
     }
@@ -94,11 +44,7 @@ class LocationService {
     double endLongitude,
   ) {
     return Geolocator.distanceBetween(
-      startLatitude,
-      startLongitude,
-      endLatitude,
-      endLongitude,
-    );
+        startLatitude, startLongitude, endLatitude, endLongitude);
   }
 
   String formatCoordinates(double latitude, double longitude) {
@@ -106,21 +52,17 @@ class LocationService {
   }
 
   Future<String?> getAddressFromCoordinates(
-    double latitude,
-    double longitude,
-  ) async {
+      double latitude, double longitude) async {
     try {
       final placemarks = await placemarkFromCoordinates(latitude, longitude);
-      if (placemarks.isEmpty) {
-        return null;
-      }
+      if (placemarks.isEmpty) return null;
       final place = placemarks.first;
       final parts = <String?>[
         place.street,
         place.subLocality,
         place.locality,
-        place.administrativeArea,
-      ].where((part) => part != null && part.trim().isNotEmpty).toList();
+        place.administrativeArea
+      ].where((p) => p != null && p.trim().isNotEmpty).toList();
       return parts.isEmpty ? null : parts.take(3).join(', ');
     } catch (_) {
       return null;
@@ -130,13 +72,11 @@ class LocationService {
   Future<Position?> getPositionFromAddress(String address) async {
     try {
       final locations = await locationFromAddress(address);
-      if (locations.isEmpty) {
-        return null;
-      }
-      final location = locations.first;
+      if (locations.isEmpty) return null;
+      final loc = locations.first;
       return Position(
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
         timestamp: DateTime.now(),
         accuracy: 0,
         altitude: 0,
@@ -152,30 +92,18 @@ class LocationService {
   }
 
   Future<LocationSnapshot?> getCurrentLocationWithAddress() async {
-    final position = await getCurrentPosition();
-    if (position == null) {
-      return null;
-    }
-
-    final address = await getAddressFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
-
+    final pos = await getCurrentPosition();
+    if (pos == null) return null;
+    final address =
+        await getAddressFromCoordinates(pos.latitude, pos.longitude);
     return LocationSnapshot(
-      latitude: position.latitude,
-      longitude: position.longitude,
-      address: address,
-    );
+        latitude: pos.latitude, longitude: pos.longitude, address: address);
   }
 }
 
 class LocationSnapshot {
-  const LocationSnapshot({
-    required this.latitude,
-    required this.longitude,
-    this.address,
-  });
+  const LocationSnapshot(
+      {required this.latitude, required this.longitude, this.address});
 
   final double latitude;
   final double longitude;

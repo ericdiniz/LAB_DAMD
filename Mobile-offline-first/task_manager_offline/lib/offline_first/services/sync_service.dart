@@ -100,18 +100,36 @@ class SyncService {
     var successCount = 0;
 
     for (final operation in operations) {
+      if (kDebugMode) {
+        debugPrint(
+            'SYNC: processing operation id=${operation.id} type=${operation.type} task=${operation.taskId} retries=${operation.retries}');
+      }
+
       try {
         await _processOperation(operation);
         await _db.removeSyncOperation(operation.id);
         successCount += 1;
       } catch (error) {
-        // Log detalhado para debugging
+        // Construir mensagem de erro detalhada, preferindo detalhes HTTP quando disponíveis
+        String errorMsg = error.toString();
         try {
-          if (kDebugMode) {
-            debugPrint(
-                'SYNC ERROR: operação ${operation.id} tipo=${operation.type} task=${operation.taskId} erro=$error');
+          if (error is ApiException) {
+            final body = (error.body ?? '').toString();
+            final truncatedBody = body.length > 1000
+                ? '${body.substring(0, 1000)}...<truncated>'
+                : body;
+            errorMsg =
+                'HTTP ${error.statusCode}: ${error.message}; body=${truncatedBody}';
           }
-        } catch (_) {}
+        } catch (_) {
+          // ignore parsing error
+        }
+
+        if (kDebugMode) {
+          debugPrint(
+              'SYNC ERROR: operação ${operation.id} tipo=${operation.type} task=${operation.taskId} erro=$errorMsg');
+        }
+
         final retries = operation.retries + 1;
         final status = retries >= 3
             ? SyncOperationStatus.failed
@@ -120,7 +138,7 @@ class SyncService {
           operation.copyWith(
             retries: retries,
             status: status,
-            error: error.toString(),
+            error: errorMsg,
           ),
         );
       }

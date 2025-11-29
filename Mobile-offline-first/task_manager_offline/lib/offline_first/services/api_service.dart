@@ -1,15 +1,51 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/task.dart';
+
+/// Exceção customizada para propagar detalhes de erro HTTP
+class ApiException implements Exception {
+  final int? statusCode;
+  final String? body;
+  final String message;
+
+  ApiException({this.statusCode, this.body, required this.message});
+
+  @override
+  String toString() =>
+      'ApiException(status=$statusCode, message=$message, body=${body ?? ''})';
+}
 
 /// Serviço de comunicação com API REST do servidor
 class ApiService {
   ApiService({this.userId = 'user1'});
 
-  static const String baseUrl = 'http://10.0.2.2:3000/api';
-  // static const String baseUrl = 'http://localhost:3000/api'; // iOS simulator
+  /// Base URL adaptativa por plataforma:
+  /// - Android emulator: 10.0.2.2
+  /// - iOS simulator / macOS / desktop: localhost
+  /// - Web / dispositivos físicos: configurar para o IP do host (ex: 192.168.x.x)
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:3000/api';
+    }
+
+    try {
+      if (Platform.isAndroid) {
+        return 'http://10.0.2.2:3000/api';
+      }
+      if (Platform.isIOS ||
+          Platform.isMacOS ||
+          Platform.isLinux ||
+          Platform.isWindows) {
+        return 'http://localhost:3000/api';
+      }
+    } catch (_) {}
+
+    return 'http://localhost:3000/api';
+  }
 
   final String userId;
 
@@ -36,7 +72,11 @@ class ApiService {
         };
       }
 
-      throw Exception('Erro ao buscar tarefas: ${response.statusCode}');
+      throw ApiException(
+        statusCode: response.statusCode,
+        body: response.body,
+        message: 'Erro ao buscar tarefas: ${response.statusCode}',
+      );
     } catch (error) {
       rethrow;
     }
@@ -58,7 +98,11 @@ class ApiService {
         return Task.fromJson(data['task'] as Map<String, dynamic>);
       }
 
-      throw Exception('Erro ao criar tarefa: ${response.statusCode}');
+      throw ApiException(
+        statusCode: response.statusCode,
+        body: response.body,
+        message: 'Erro ao criar tarefa: ${response.statusCode}',
+      );
     } catch (error) {
       rethrow;
     }
@@ -96,7 +140,11 @@ class ApiService {
         };
       }
 
-      throw Exception('Erro ao atualizar tarefa: ${response.statusCode}');
+      throw ApiException(
+        statusCode: response.statusCode,
+        body: response.body,
+        message: 'Erro ao atualizar tarefa: ${response.statusCode}',
+      );
     } catch (error) {
       rethrow;
     }
@@ -135,7 +183,11 @@ class ApiService {
         return List<Map<String, dynamic>>.from(data['results'] as List);
       }
 
-      throw Exception('Erro no sync em lote: ${response.statusCode}');
+      throw ApiException(
+        statusCode: response.statusCode,
+        body: response.body,
+        message: 'Erro no sync em lote: ${response.statusCode}',
+      );
     } catch (error) {
       rethrow;
     }
@@ -144,8 +196,16 @@ class ApiService {
   /// Verificar conectividade com servidor
   Future<bool> checkConnectivity() async {
     try {
+      // Alguns servidores expõem /health na raiz (ex: http://localhost:3000/health)
+      // enquanto `baseUrl` inclui o prefixo '/api'. Para evitar 404, remova
+      // '/api' de `baseUrl` quando presente antes de chamar /health.
+      String healthBase = baseUrl;
+      if (healthBase.endsWith('/api')) {
+        healthBase = healthBase.substring(0, healthBase.length - 4);
+      }
+
       final response = await http
-          .get(Uri.parse('$baseUrl/health'))
+          .get(Uri.parse('$healthBase/health'))
           .timeout(const Duration(seconds: 8));
 
       return response.statusCode == 200;

@@ -22,18 +22,21 @@ Segundo Kleppmann (2017), "aplicações offline-first são projetadas para funci
 ### Características do Paradigma Offline-First
 
 **Princípios Fundamentais:**
+
 - **Local-First**: Dados são armazenados e manipulados localmente primeiro
 - **Sincronização Eventual**: Dados são sincronizados quando conectividade está disponível
 - **Resolução de Conflitos**: Estratégias para lidar com modificações concorrentes
 - **Experiência Contínua**: Aplicação funciona independente do estado da rede
 
 **Vantagens:**
+
 - Melhor experiência do usuário em redes instáveis
 - Redução de latência para operações locais
 - Maior resiliência e disponibilidade
 - Economia de dados móveis
 
 **Desafios:**
+
 - Complexidade na sincronização de dados
 - Gerenciamento de conflitos
 - Consistência eventual vs forte
@@ -49,6 +52,7 @@ Segundo Kleppmann (2017), "aplicações offline-first são projetadas para funci
 ## Cenário do Laboratório
 
 Evolução do sistema de gerenciamento de tarefas implementando:
+
 1. Persistência local com SQLite (sqflite)
 2. Detecção de estado de conectividade (connectivity_plus)
 3. Fila de sincronização para operações offline
@@ -973,6 +977,7 @@ class ConnectivityService {
   }
 }
 ```
+
 ---
 
 ## **PASSO 6: Motor de Sincronização Simplificado**
@@ -2546,4 +2551,4 @@ flutter pub get
 
 <sup>[3]</sup> **VOGELS, Werner.** Eventually Consistent. Communications of the ACM, vol. 52, no. 1, 2009.
 
-<sup>[4]</sup> **FLUTTER DOCUMENTATION.** Working with SQLite. Disponível em: https://docs.flutter.dev/cookbook/persistence/sqlite
+<sup>[4]</sup> **FLUTTER DOCUMENTATION.** Working with SQLite. Disponível em: <https://docs.flutter.dev/cookbook/persistence/sqlite>

@@ -49,9 +49,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
 
   Future<void> _takePicture() async {
     if (!CameraService.instance.hasCameras) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Nenhuma câmera disponível')));
+      }
       return;
     }
     final camera = CameraService.instance.primaryCamera!;
@@ -59,18 +60,25 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
         CameraController(camera, ResolutionPreset.medium, enableAudio: false);
     try {
       await controller.initialize();
+      if (!mounted) {
+        try {
+          await controller.dispose();
+        } catch (_) {}
+        return;
+      }
       final path = await Navigator.of(context).push<String>(
         MaterialPageRoute(builder: (_) => CameraScreen(controller: controller)),
       );
       if (path != null) {
         // save to app-managed directory
         final saved = await CameraService.instance.savePicture(XFile(path));
-        if (saved != null) setState(() => _photoPath = saved);
+        setState(() => _photoPath = saved);
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Erro câmera: $e')));
+      }
     } finally {
       try {
         controller.dispose();
