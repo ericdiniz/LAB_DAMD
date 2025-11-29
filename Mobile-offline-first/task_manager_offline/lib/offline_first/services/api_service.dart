@@ -40,7 +40,11 @@ class ApiService {
           Platform.isMacOS ||
           Platform.isLinux ||
           Platform.isWindows) {
-        return 'http://localhost:3000/api';
+        // Use 127.0.0.1 instead of 'localhost' to avoid IPv6/lookup issues on
+        // some desktop/macOS environments where the app's HttpClient fails to
+        // connect to ::1 while the dev server is bound to IPv4. Dev server
+        // without auth runs on 3001 inside the mobile-offline-first folder.
+        return 'http://127.0.0.1:3001/api';
       }
     } catch (_) {}
 

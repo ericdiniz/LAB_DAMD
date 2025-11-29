@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../config.dart';
 import '../models/sync_operation.dart';
 import '../models/task.dart';
 import 'api_service.dart';
@@ -12,12 +13,28 @@ import 'database_service.dart';
 class SyncService {
   SyncService({String userId = 'user1'})
       : _api = ApiService(userId: userId),
-        _userId = userId;
+        _userId = userId {
+    // Se ocorrer conectividade, tentar sincronizar imediatamente.
+    try {
+      _connectivitySub = _connectivity.connectivityStream.listen((online) {
+        if (online && !_isSyncing) {
+          if (kDebugMode)
+            debugPrint('Connectivity changed: online -> starting sync');
+          // não esperar o término aqui
+          unawaited(sync());
+        }
+      });
+    } catch (_) {
+      // ignore - caso o serviço de conectividade não esteja inicializado ainda
+    }
+  }
 
   final OfflineDatabaseService _db = OfflineDatabaseService.instance;
   final ApiService _api;
   final ConnectivityService _connectivity = ConnectivityService.instance;
   final String _userId;
+
+  StreamSubscription<bool>? _connectivitySub;
 
   bool _isSyncing = false;
   Timer? _autoSyncTimer;
@@ -42,12 +59,20 @@ class SyncService {
 
     // Verifica se o servidor está acessível antes de iniciar operações que possam timeout.
     try {
-      final serverOk = await _api.checkConnectivity();
-      if (!serverOk) {
-        return SyncResult(
-          success: false,
-          message: 'Servidor inacessível (health check falhou)',
-        );
+      // Em modo de desenvolvimento é possível pular o health-check para forçar
+      // a sincronização local sem depender da verificação /health do servidor.
+      if (!AppConfig.devSkipHealthCheck) {
+        final serverOk = await _api.checkConnectivity();
+        if (!serverOk) {
+          return SyncResult(
+            success: false,
+            message: 'Servidor inacessível (health check falhou)',
+          );
+        }
+      } else {
+        if (kDebugMode)
+          debugPrint(
+              'AppConfig.devSkipHealthCheck=true — pulando health-check');
       }
     } catch (e) {
       return SyncResult(
@@ -393,6 +418,7 @@ class SyncService {
 
   void dispose() {
     stopAutoSync();
+    _connectivitySub?.cancel();
     _syncStatusController.close();
   }
 

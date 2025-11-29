@@ -1,0 +1,15 @@
+[
+  {
+    "id": "f1db77f9-a918-4bc2-b6eb-3fce68b30cde",
+    "title": "teste-curl",
+    "description": "criada via curl",
+    "priority": "high",
+    "userId": "user1",
+    "category": "",
+    "tags": "curl",
+    "completed": false,
+    "version": 1,
+    "createdAt": "2025-11-29T19:36:25.125Z",
+    "updatedAt": "2025-11-29T19:36:25.125Z"
+  }
+]
