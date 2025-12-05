@@ -9,23 +9,27 @@ import 'screens/task_list_screen.dart';
 const bool kEnableOfflineFirstApp = true;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // Marca de execução para facilitar identificação da build em execução
-  // Aparece no console quando o app inicia.
-  if (kDebugMode) {
-    debugPrint(
-        'BUILD MARK: Mobile-offline-first - local changes - ${DateTime.now().toIso8601String()}');
-  }
+  // Colocar a inicialização das bindings dentro da mesma zone usada
+  // para chamar `runApp` evita "Zone mismatch" e garante que plugins
+  // sejam registrados na zone correta.
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Evita que exceções não tratadas encerrem o app quando executando no dispositivo
-  // especialmente útil ao depurar com o Xcode e em cenários de perda de conexão.
-  FlutterError.onError = (FlutterErrorDetails details) {
+    // Marca de execução para facilitar identificação da build em execução
+    // Aparece no console quando o app inicia.
     if (kDebugMode) {
-      FlutterError.dumpErrorToConsole(details);
+      debugPrint(
+          'BUILD MARK: Mobile-offline-first - local changes - ${DateTime.now().toIso8601String()}');
     }
-  };
 
-  runZonedGuarded(() {
+    // Evita que exceções não tratadas encerrem o app quando executando no dispositivo
+    // especialmente útil ao depurar com o Xcode e em cenários de perda de conexão.
+    FlutterError.onError = (FlutterErrorDetails details) {
+      if (kDebugMode) {
+        FlutterError.dumpErrorToConsole(details);
+      }
+    };
+
     if (kEnableOfflineFirstApp) {
       runApp(const OfflineFirstApp());
       return;

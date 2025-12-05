@@ -11,5 +11,44 @@
     "version": 1,
     "createdAt": "2025-11-29T19:36:25.125Z",
     "updatedAt": "2025-11-29T19:36:25.125Z"
+  },
+  {
+    "id": "01ceb429-3342-4e46-a8a2-9a48e210db5d",
+    "title": "tarefa offline 2",
+    "description": "tarefa offline 2",
+    "priority": "medium",
+    "userId": "user1",
+    "category": "",
+    "tags": "",
+    "completed": false,
+    "version": 1,
+    "createdAt": "2025-12-02T00:53:19.191Z",
+    "updatedAt": "2025-12-02T00:53:19.191Z"
+  },
+  {
+    "id": "51b1bc23-b8bb-4ece-88b0-3b2fb330f1ed",
+    "title": "off 3",
+    "description": "off 3",
+    "priority": "medium",
+    "userId": "user1",
+    "category": "",
+    "tags": "",
+    "completed": false,
+    "version": 1,
+    "createdAt": "2025-12-02T01:16:18.370Z",
+    "updatedAt": "2025-12-02T01:16:18.370Z"
+  },
+  {
+    "id": "a1d590de-9973-4149-8d9d-f439aff382f2",
+    "title": "off 4",
+    "description": "off 4",
+    "priority": "medium",
+    "userId": "user1",
+    "category": "",
+    "tags": "",
+    "completed": false,
+    "version": 1,
+    "createdAt": "2025-12-02T01:16:56.838Z",
+    "updatedAt": "2025-12-02T01:16:56.838Z"
   }
 ]

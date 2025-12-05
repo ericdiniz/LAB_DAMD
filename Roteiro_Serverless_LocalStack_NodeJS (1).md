@@ -1,7 +1,7 @@
 # Roteiro 4: Arquitetura Serverless com LocalStack
 
-**Laboratório de Desenvolvimento de Aplicações Móveis e Distribuídas**  
-**Curso de Engenharia de Software - PUC Minas**  
+**Laboratório de Desenvolvimento de Aplicações Móveis e Distribuídas**
+**Curso de Engenharia de Software - PUC Minas**
 **Professores:** Artur Mol, Cleiton Tavares e Cristiano Neto
 
 ---
@@ -17,23 +17,25 @@
 
 ## Fundamentação Teórica
 
-A arquitetura serverless representa uma evolução significativa no desenvolvimento de aplicações distribuídas. Segundo Roberts (2018), "serverless computing permite que desenvolvedores construam e executem aplicações sem pensar em servidores" <sup>[1]</sup>.
+A arquitetura serverless representa uma evolução significativa no desenvolvimento de aplicações distribuídas. Segundo Roberts (2018), "serverless computing permite que desenvolvedores construam e executem aplicações sem pensar em servidores"[^1].
 
 ### Características da Arquitetura Serverless
 
-Segundo Baldini et al. (2017), serverless computing possui três características fundamentais <sup>[2]</sup>:
+Segundo Baldini et al. (2017), serverless computing possui três características fundamentais[^2]:
 
 1. **Event-driven Execution**: Funções são executadas em resposta a eventos específicos
 2. **Stateless Computation**: Cada invocação é independente, sem estado persistente
 3. **Auto-scaling**: Escalamento automático baseado em demanda
 
 **Vantagens:**
+
 - **Custo**: Pagamento apenas por execução real (pay-per-use)
 - **Escalabilidade**: Escala automaticamente de zero a milhões de requisições
 - **Manutenção**: Infraestrutura gerenciada pelo provedor cloud
 - **Desenvolvimento**: Foco em lógica de negócio, não em infraestrutura
 
 **Limitações:**
+
 - **Cold Start**: Latência inicial quando função está "fria"
 - **Vendor Lock-in**: Dependência de provedores específicos
 - **Tempo de Execução**: Limitações de timeout (AWS Lambda: 15 minutos máximo)
@@ -42,6 +44,7 @@ Segundo Baldini et al. (2017), serverless computing possui três característica
 ### Function as a Service (FaaS)
 
 O modelo FaaS representa o núcleo do serverless. Na AWS Lambda, funções são executadas em containers efêmeros que:
+
 - Inicializam sob demanda
 - Processam um único evento por vez
 - São descartados após período de inatividade
@@ -49,9 +52,10 @@ O modelo FaaS representa o núcleo do serverless. Na AWS Lambda, funções são 
 
 ### LocalStack para Desenvolvimento Local
 
-LocalStack é um emulador completo de serviços AWS que permite desenvolvimento e testes locais sem custos de cloud. Segundo a documentação oficial, "LocalStack fornece um ambiente de teste fácil de usar para desenvolvimento de aplicações cloud" <sup>[3]</sup>.
+LocalStack é um emulador completo de serviços AWS que permite desenvolvimento e testes locais sem custos de cloud. Segundo a documentação oficial, "LocalStack fornece um ambiente de teste fácil de usar para desenvolvimento de aplicações cloud"[^3].
 
 **Serviços Suportados:**
+
 - AWS Lambda (execução de funções)
 - S3 (armazenamento de objetos)
 - DynamoDB (banco NoSQL)
@@ -72,7 +76,7 @@ Sistema de processamento de dados serverless implementando pipeline event-driven
 
 **Arquitetura Implementada:**
 
-```
+```text
 ┌─────────────┐     ┌──────────────┐     ┌─────────────┐
 │   CSV File  │────▶│  S3 Bucket   │────▶│   Lambda    │
 └─────────────┘     └──────────────┘     │  Processor  │
@@ -90,9 +94,6 @@ Sistema de processamento de dados serverless implementando pipeline event-driven
             │   Lambda     │
             │  API Handler │
             └──────────────┘
-```
-
-## Pré-requisitos
 
 - Node.js 18+ e NPM
 - Docker Desktop instalado e rodando
@@ -158,7 +159,7 @@ npm install --save-dev typescript @types/node
 
 ### 1.4 Estrutura Final de Diretórios
 
-```
+```text
 lab04-serverless-localstack/
 ├── package.json
 ├── serverless.yml              # Configuração Infrastructure as Code
@@ -201,36 +202,36 @@ services:
     ports:
       - "4566:4566"            # Gateway principal LocalStack
       - "4510-4559:4510-4559"  # Range para serviços externos
-    
+
     environment:
       # Serviços AWS a serem emulados
       - SERVICES=lambda,dynamodb,s3,sns,iam,logs,cloudwatch,cloudformation,apigateway
-      
+
       # Configurações de debug
       - DEBUG=1
       - LS_LOG=INFO
-      
+
       # Configurações Lambda
       - LAMBDA_EXECUTOR=docker
       - LAMBDA_REMOTE_DOCKER=0
       - LAMBDA_DOCKER_NETWORK=localstack-network
-      
+
       # Persistência desabilitada para desenvolvimento
       # Em produção, considere habilitar para manter dados
       - PERSISTENCE=0
-      
+
       # Configurações adicionais
       - DOCKER_HOST=unix:///var/run/docker.sock
-    
+
     volumes:
       # Volume para persistência (se habilitado)
       - localstack-data:/var/lib/localstack
       # Socket do Docker para execução de Lambda
       - "/var/run/docker.sock:/var/run/docker.sock"
-    
+
     networks:
       - localstack-network
-    
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
       interval: 10s
@@ -306,15 +307,15 @@ provider:
   runtime: nodejs18.x
   stage: ${opt:stage, 'local'}
   region: us-east-1
-  
+
   # Variáveis de ambiente globais para todas as funções
   environment:
     TABLE_NAME: ${self:custom.tableName}
     BUCKET_NAME: ${self:custom.bucketName}
-    TOPIC_ARN: 
+    TOPIC_ARN:
       Ref: DataProcessingTopic
     AWS_ENDPOINT_URL: ${self:custom.localstack.endpoint}
-  
+
   # Políticas IAM para as funções Lambda
   iam:
     role:
@@ -332,7 +333,7 @@ provider:
             Fn::GetAtt:
               - ProcessedDataTable
               - Arn
-        
+
         # Permissões S3
         - Effect: Allow
           Action:
@@ -348,14 +349,14 @@ provider:
                       - DataProcessingBucket
                       - Arn
                   - '/*'
-        
+
         # Permissões SNS
         - Effect: Allow
           Action:
             - sns:Publish
           Resource:
             Ref: DataProcessingTopic
-        
+
         # Permissões CloudWatch Logs
         - Effect: Allow
           Action:
@@ -370,7 +371,7 @@ custom:
   tableName: ProcessedData
   bucketName: data-processing-bucket
   topicName: data-processing-notifications
-  
+
   # Configuração LocalStack
   localstack:
     stages:
@@ -405,7 +406,7 @@ functions:
     events:
       # Trigger: Evento S3 quando arquivo é criado
       - s3:
-          bucket: 
+          bucket:
             Ref: DataProcessingBucket
           event: s3:ObjectCreated:*
           rules:
@@ -443,7 +444,7 @@ resources:
           BlockPublicPolicy: true
           IgnorePublicAcls: true
           RestrictPublicBuckets: true
-    
+
     # Permissão para S3 invocar Lambda
     DataProcessorLambdaPermissionS3:
       Type: AWS::Lambda::Permission
@@ -458,7 +459,7 @@ resources:
           Fn::GetAtt:
             - DataProcessingBucket
             - Arn
-    
+
     # Tabela DynamoDB para armazenar dados processados
     ProcessedDataTable:
       Type: AWS::DynamoDB::Table
@@ -482,7 +483,7 @@ resources:
             Value: ${self:provider.stage}
           - Key: Service
             Value: ${self:service}
-    
+
     # Tópico SNS para notificações
     DataProcessingTopic:
       Type: AWS::SNS::Topic
@@ -492,7 +493,7 @@ resources:
         Tags:
           - Key: Environment
             Value: ${self:provider.stage}
-  
+
   # Outputs (valores exportados para referência)
   Outputs:
     BucketName:
@@ -501,21 +502,21 @@ resources:
         Ref: DataProcessingBucket
       Export:
         Name: ${self:service}-${self:provider.stage}-BucketName
-    
+
     TableName:
       Description: Nome da tabela DynamoDB
       Value:
         Ref: ProcessedDataTable
       Export:
         Name: ${self:service}-${self:provider.stage}-TableName
-    
+
     TopicArn:
       Description: ARN do tópico SNS
       Value:
         Ref: DataProcessingTopic
       Export:
         Name: ${self:service}-${self:provider.stage}-TopicArn
-    
+
     FunctionArn:
       Description: ARN da função Lambda principal
       Value:
@@ -524,7 +525,7 @@ resources:
           - Arn
       Export:
         Name: ${self:service}-${self:provider.stage}-FunctionArn
-    
+
     ApiEndpoint:
       Description: URL do API Gateway
       Value:
@@ -549,7 +550,7 @@ const AWS = require('aws-sdk');
 
 /**
  * Helper para operações com DynamoDB
- * 
+ *
  * Abstrai a complexidade das operações com DynamoDB,
  * facilitando put, get, query e scan operations
  */
@@ -667,7 +668,7 @@ async function updateItem(id, timestamp, updates) {
   Object.keys(updates).forEach((key, index) => {
     const placeholder = `#attr${index}`;
     const valuePlaceholder = `:val${index}`;
-    
+
     updateExpressionParts.push(`${placeholder} = ${valuePlaceholder}`);
     expressionAttributeNames[placeholder] = key;
     expressionAttributeValues[valuePlaceholder] = updates[key];
@@ -731,7 +732,7 @@ const AWS = require('aws-sdk');
 
 /**
  * Helper para operações com S3
- * 
+ *
  * Facilita operações de leitura e escrita em buckets S3
  */
 
@@ -871,7 +872,7 @@ const AWS = require('aws-sdk');
 
 /**
  * Helper para notificações SNS
- * 
+ *
  * Simplifica publicação de mensagens em tópicos SNS
  */
 
@@ -999,14 +1000,14 @@ const { v4: uuidv4 } = require('uuid');
 
 /**
  * Lambda Handler: Data Processor
- * 
+ *
  * Função principal que processa arquivos CSV do S3:
  * 1. Recebe evento de criação de arquivo no S3
  * 2. Lê e parseia o arquivo CSV
  * 3. Valida e transforma os dados
  * 4. Salva cada registro no DynamoDB
  * 5. Publica notificação SNS ao concluir
- * 
+ *
  * @param {Object} event - Evento S3 trigger
  * @param {Object} context - Contexto da execução Lambda
  * @returns {Promise<Object>} Resultado do processamento
@@ -1020,7 +1021,7 @@ exports.handler = async (event, context) => {
     const record = event.Records[0];
     const bucket = record.s3.bucket.name;
     const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
-    
+
     console.log(`📁 Processando arquivo: s3://${bucket}/${key}`);
 
     // 1. Ler arquivo CSV do S3
@@ -1030,7 +1031,7 @@ exports.handler = async (event, context) => {
     // 2. Parsear CSV manualmente (sem dependência externa de csv-parser)
     const lines = csvContent.trim().split('\n');
     const headers = lines[0].split(',').map(h => h.trim());
-    
+
     console.log(`📊 Headers encontrados: ${headers.join(', ')}`);
     console.log(`📈 Total de linhas (incluindo header): ${lines.length}`);
 
@@ -1041,13 +1042,13 @@ exports.handler = async (event, context) => {
     // 3. Processar cada linha do CSV
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
-      
+
       // Pular linhas vazias
       if (!line) continue;
 
       try {
         const values = line.split(',').map(v => v.trim());
-        
+
         // Criar objeto a partir dos headers e values
         const record = {};
         headers.forEach((header, index) => {
@@ -1078,7 +1079,7 @@ exports.handler = async (event, context) => {
         await putItem(enrichedRecord);
         records.push(enrichedRecord);
         processedCount++;
-        
+
         console.log(`✅ Linha ${i + 1} processada: ${record.nome}`);
 
       } catch (error) {
@@ -1131,7 +1132,7 @@ exports.handler = async (event, context) => {
 
   } catch (error) {
     console.error('❌ Erro fatal no processamento:', error);
-    
+
     // Publicar notificação de erro
     try {
       const topicArn = process.env.TOPIC_ARN;
@@ -1171,13 +1172,13 @@ const { v4: uuidv4 } = require('uuid');
 
 /**
  * Lambda Handler: Create Record API
- * 
+ *
  * Endpoint REST para criar registros diretamente no DynamoDB
  * via requisição HTTP POST
- * 
+ *
  * Endpoint: POST /records
  * Body: JSON com dados do registro
- * 
+ *
  * @param {Object} event - Evento API Gateway
  * @param {Object} context - Contexto da execução Lambda
  * @returns {Promise<Object>} Resposta HTTP
@@ -1219,8 +1220,8 @@ exports.handler = async (event, context) => {
     // 2. Parsear body da requisição
     let body;
     try {
-      body = typeof event.body === 'string' 
-        ? JSON.parse(event.body) 
+      body = typeof event.body === 'string'
+        ? JSON.parse(event.body)
         : event.body;
     } catch (parseError) {
       return {
@@ -1300,7 +1301,7 @@ exports.handler = async (event, context) => {
 
   } catch (error) {
     console.error('❌ Erro ao criar registro:', error);
-    
+
     return {
       statusCode: 500,
       headers,
@@ -1391,7 +1392,7 @@ const path = require('path');
 
 /**
  * Script de Teste Automatizado do Pipeline
- * 
+ *
  * Testa todo o fluxo serverless:
  * 1. Upload de CSV para S3
  * 2. Trigger automático da Lambda
@@ -1504,7 +1505,7 @@ async function checkTable() {
  */
 async function uploadTestFile() {
   info('Fazendo upload do arquivo de teste...');
-  
+
   if (!fs.existsSync(TEST_FILE)) {
     error(`Arquivo de teste não encontrado: ${TEST_FILE}`);
     return false;
@@ -1533,28 +1534,28 @@ async function uploadTestFile() {
  */
 async function waitForProcessing(maxAttempts = 10, interval = 2000) {
   info('Aguardando Lambda processar dados...');
-  
+
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const params = {
         TableName: TABLE_NAME,
         Limit: 1
       };
-      
+
       const result = await dynamodb.scan(params).promise();
-      
+
       if (result.Items && result.Items.length > 0) {
         success(`Dados processados encontrados no DynamoDB!`);
         return true;
       }
-      
+
       warning(`Tentativa ${i + 1}/${maxAttempts}: Aguardando processamento...`);
       await sleep(interval);
     } catch (err) {
       warning(`Erro ao verificar DynamoDB: ${err.message}`);
     }
   }
-  
+
   error('Timeout: Lambda não processou dados no tempo esperado');
   return false;
 }
@@ -1564,33 +1565,33 @@ async function waitForProcessing(maxAttempts = 10, interval = 2000) {
  */
 async function verifyData() {
   info('Verificando dados processados no DynamoDB...');
-  
+
   try {
     const params = {
       TableName: TABLE_NAME,
       Limit: 100
     };
-    
+
     const result = await dynamodb.scan(params).promise();
     const items = result.Items || [];
-    
+
     success(`Total de registros no DynamoDB: ${items.length}`);
-    
+
     if (items.length > 0) {
       info('\nExemplo de registro processado:');
       console.log(JSON.stringify(items[0], null, 2));
-      
+
       // Validar campos esperados
       const requiredFields = ['id', 'timestamp', 'nome', 'preco', 'source_file'];
       const firstItem = items[0];
       const missingFields = requiredFields.filter(field => !(field in firstItem));
-      
+
       if (missingFields.length === 0) {
         success('Todos os campos esperados estão presentes');
       } else {
         warning(`Campos faltando: ${missingFields.join(', ')}`);
       }
-      
+
       return true;
     } else {
       warning('Nenhum registro encontrado no DynamoDB');
@@ -1607,7 +1608,7 @@ async function verifyData() {
  */
 async function testApi() {
   info('Testando API REST para criar registro...');
-  
+
   try {
     const params = {
       FunctionName: 'CreateRecordFunction',
@@ -1627,10 +1628,10 @@ async function testApi() {
         }
       })
     };
-    
+
     const result = await lambda.invoke(params).promise();
     const response = JSON.parse(result.Payload);
-    
+
     if (response.statusCode === 201) {
       success('API REST funcionando corretamente');
       const body = JSON.parse(response.body);
@@ -1731,7 +1732,7 @@ const path = require('path');
 
 /**
  * Script de Setup Inicial do Projeto
- * 
+ *
  * Automatiza configuração inicial:
  * 1. Verifica dependências instaladas
  * 2. Inicia LocalStack
@@ -1742,9 +1743,9 @@ const path = require('path');
 function execute(command, options = {}) {
   console.log(`\n🔧 Executando: ${command}`);
   try {
-    execSync(command, { 
+    execSync(command, {
       stdio: 'inherit',
-      ...options 
+      ...options
     });
     console.log('✅ Comando executado com sucesso\n');
     return true;
@@ -2077,6 +2078,7 @@ aws --endpoint-url=http://localhost:4566 s3 rm s3://data-processing-bucket/input
 ### 10.1 Análise Arquitetural
 
 **Características Implementadas:**
+
 - ✅ Arquitetura event-driven completamente serverless
 - ✅ Pipeline de processamento automático (S3 → Lambda → DynamoDB)
 - ✅ API REST serverless com Lambda + API Gateway
@@ -2086,14 +2088,14 @@ aws --endpoint-url=http://localhost:4566 s3 rm s3://data-processing-bucket/input
 
 **Métricas de Performance Esperadas:**
 
-| Métrica | Valor | Observações |
-|---------|-------|-------------|
-| **Cold Start** | 500-1500ms | Primeira invocação após deploy |
-| **Warm Start** | 5-50ms | Invocações subsequentes |
-| **Throughput** | Ilimitado | Auto-scaling automático |
-| **Concorrência** | 1000 (AWS default) | Configurável |
-| **Timeout** | 60s (configurado) | Máximo 15 minutos |
-| **Memória** | 256MB | Ajustável por função |
+| Métrica          | Valor              | Observações                    |
+| ---------------- | ------------------ | ------------------------------ |
+| **Cold Start**   | 500-1500ms         | Primeira invocação após deploy |
+| **Warm Start**   | 5-50ms             | Invocações subsequentes        |
+| **Throughput**   | Ilimitado          | Auto-scaling automático        |
+| **Concorrência** | 1000 (AWS default) | Configurável                   |
+| **Timeout**      | 60s (configurado)  | Máximo 15 minutos              |
+| **Memória**      | 256MB              | Ajustável por função           |
 
 **Vantagens Demonstradas:**
 
@@ -2113,25 +2115,26 @@ aws --endpoint-url=http://localhost:4566 s3 rm s3://data-processing-bucket/input
 
 ### 10.2 Comparação com Arquiteturas Anteriores
 
-| Aspecto | Tradicional (Roteiro 1) | gRPC (Roteiro 2) | Serverless (Roteiro 4) |
-|---------|-------------------------|------------------|------------------------|
-| **Infraestrutura** | Servidor sempre ativo | Servidor sempre ativo | Sem servidor |
-| **Custo** | Fixo (24/7) | Fixo (24/7) | Por execução |
-| **Escalabilidade** | Manual/Limitada | Manual/Boa | Automática/Infinita |
-| **Manutenção** | Alta | Alta | Mínima |
-| **Cold Start** | N/A | N/A | 500-1500ms |
-| **Throughput** | Limitado | Alto | Ilimitado |
-| **Complexidade** | Baixa | Média | Média-Alta |
-| **Debugging** | Fácil | Médio | Difícil |
-| **Event-driven** | Manual | Manual | Nativo |
-| **Vendor Lock-in** | Baixo | Baixo | Alto |
+| Aspecto            | Tradicional (Roteiro 1) | gRPC (Roteiro 2)      | Serverless (Roteiro 4) |
+| ------------------ | ----------------------- | --------------------- | ---------------------- |
+| **Infraestrutura** | Servidor sempre ativo   | Servidor sempre ativo | Sem servidor           |
+| **Custo**          | Fixo (24/7)             | Fixo (24/7)           | Por execução           |
+| **Escalabilidade** | Manual/Limitada         | Manual/Boa            | Automática/Infinita    |
+| **Manutenção**     | Alta                    | Alta                  | Mínima                 |
+| **Cold Start**     | N/A                     | N/A                   | 500-1500ms             |
+| **Throughput**     | Limitado                | Alto                  | Ilimitado              |
+| **Complexidade**   | Baixa                   | Média                 | Média-Alta             |
+| **Debugging**      | Fácil                   | Médio                 | Difícil                |
+| **Event-driven**   | Manual                  | Manual                | Nativo                 |
+| **Vendor Lock-in** | Baixo                   | Baixo                 | Alto                   |
 
 ### 10.3 Quando Usar Serverless
 
 **✅ Use Serverless quando:**
 
 1. **Workloads Intermitentes**
-   ```
+
+   ```text
    - Processamento batch noturno
    - Webhooks esporádicos
    - Tarefas agendadas
@@ -2139,7 +2142,8 @@ aws --endpoint-url=http://localhost:4566 s3 rm s3://data-processing-bucket/input
    ```
 
 2. **Event-driven Applications**
-   ```
+
+   ```text
    - Processamento de uploads
    - Streams de dados
    - IoT data processing
@@ -2147,7 +2151,8 @@ aws --endpoint-url=http://localhost:4566 s3 rm s3://data-processing-bucket/input
    ```
 
 3. **Microservices Stateless**
-   ```
+
+   ```text
    - APIs REST simples
    - Data transformation
    - Image processing
@@ -2155,7 +2160,8 @@ aws --endpoint-url=http://localhost:4566 s3 rm s3://data-processing-bucket/input
    ```
 
 4. **Prototipação Rápida**
-   ```
+
+   ```text
    - MVPs
    - Proof of concepts
    - Experimentos
@@ -2164,28 +2170,32 @@ aws --endpoint-url=http://localhost:4566 s3 rm s3://data-processing-bucket/input
 **❌ Evite Serverless quando:**
 
 1. **Aplicações Stateful**
-   ```
+
+   ```text
    - WebSocket servers
    - Game servers
    - Long-running connections
    ```
 
 2. **Workloads Constantes**
-   ```
+
+   ```text
    - Tráfego 24/7 constante
    - Background workers contínuos
    - Pode ser mais caro que servidor dedicado
    ```
 
 3. **Processamento de Longa Duração**
-   ```
+
+   ```text
    - Tarefas > 15 minutos
    - Video encoding complexo
    - Large batch processing
    ```
 
 4. **Requisitos Baixíssimos de Latência**
-   ```
+
+   ```text
    - Trading algorithms
    - Real-time gaming
    - Cold start inaceitável
@@ -2193,7 +2203,8 @@ aws --endpoint-url=http://localhost:4566 s3 rm s3://data-processing-bucket/input
 
 ### 10.4 Best Practices Implementadas
 
-**1. Separação de Responsabilidades**
+#### 1. Separação de Responsabilidades
+
 ```javascript
 // ✅ Bom: Funções focadas
 - dataProcessor: Apenas processa CSV
@@ -2202,7 +2213,8 @@ aws --endpoint-url=http://localhost:4566 s3 rm s3://data-processing-bucket/input
 // ❌ Evitar: Funções monolíticas que fazem tudo
 ```
 
-**2. Configuração Externa**
+#### 2. Configuração Externa
+
 ```javascript
 // ✅ Bom: Variáveis de ambiente
 const tableName = process.env.TABLE_NAME;
@@ -2211,7 +2223,8 @@ const tableName = process.env.TABLE_NAME;
 const tableName = 'ProcessedData';
 ```
 
-**3. Tratamento de Erros Robusto**
+#### 3. Tratamento de Erros Robusto
+
 ```javascript
 // ✅ Bom: Try-catch com logging
 try {
@@ -2223,7 +2236,8 @@ try {
 }
 ```
 
-**4. Princípio de Menor Privilégio (IAM)**
+#### 4. Princípio de Menor Privilégio (IAM)
+
 ```yaml
 # ✅ Bom: Apenas permissões necessárias
 - Effect: Allow
@@ -2237,7 +2251,8 @@ try {
   Resource: '*'
 ```
 
-**5. Timeout e Memory Sizing**
+##### 5. Timeout e Memory Sizing
+
 ```yaml
 # ✅ Bom: Ajustado para workload
 timeout: 60
@@ -2248,7 +2263,8 @@ memorySize: 256
 
 ### 10.5 Troubleshooting Comum
 
-**Problema 1: Lambda não é invocada pelo S3**
+### Problema 1: Lambda não é invocada pelo S3
+
 ```bash
 # Solução: Recriar trigger
 serverless deploy --stage local --force
@@ -2257,7 +2273,8 @@ serverless deploy --stage local --force
 aws --endpoint-url=http://localhost:4566 lambda get-policy --function-name DataProcessorFunction
 ```
 
-**Problema 2: Erro "Cannot find module"**
+### Problema 2: Erro "Cannot find module"
+
 ```bash
 # Solução: Reinstalar dependências
 rm -rf node_modules
@@ -2267,7 +2284,8 @@ npm install
 serverless deploy --stage local
 ```
 
-**Problema 3: LocalStack não inicia**
+### Problema 3: LocalStack não inicia
+
 ```bash
 # Solução: Limpar e reiniciar
 docker-compose down -v
@@ -2277,7 +2295,8 @@ docker-compose up -d
 sleep 30
 ```
 
-**Problema 4: DynamoDB não recebe dados**
+### Problema 4: DynamoDB não recebe dados
+
 ```bash
 # Verificar logs da Lambda
 serverless logs -f dataProcessor --stage local
@@ -2294,23 +2313,23 @@ serverless invoke -f dataProcessor --stage local --path tests/test-event.json
 ## **Exercícios Complementares**
 
 1. **Implementar Retry Logic**: Adicionar lógica de retry com exponential backoff para falhas no DynamoDB
-   
+
 2. **Dead Letter Queue**: Configurar DLQ para processar eventos com falha
-   
+
 3. **Métricas Customizadas**: Enviar métricas customizadas para CloudWatch
-   
+
 4. **Caching**: Implementar caching de leituras frequentes do DynamoDB
-   
+
 5. **Batch Processing**: Modificar para processar múltiplos arquivos em paralelo
-   
+
 6. **API Authentication**: Adicionar autenticação JWT ou API Keys no API Gateway
-   
+
 7. **Data Validation**: Implementar validação de schema mais robusta com Joi ou Ajv
-   
+
 8. **Lambda Layers**: Criar Lambda Layer para código compartilhado
-   
+
 9. **Step Functions**: Orquestrar pipeline complexo com AWS Step Functions
-   
+
 10. **Performance Monitoring**: Implementar tracing distribuído com X-Ray
 
 ---
@@ -2320,18 +2339,21 @@ serverless invoke -f dataProcessor --stage local --path tests/test-event.json
 ### Checklist de Implementação
 
 **Configuração:**
+
 - [ ] LocalStack rodando via Docker Compose
 - [ ] Serverless Framework configurado corretamente
 - [ ] Todas as dependências Node.js instaladas
 - [ ] Variáveis de ambiente configuradas
 
 **Funções Lambda:**
+
 - [ ] dataProcessor implementada e funcional
 - [ ] createRecord implementada e funcional
 - [ ] Helpers (DynamoDB, S3, SNS) implementados
 - [ ] Tratamento de erros robusto em todas funções
 
 **Infraestrutura:**
+
 - [ ] Bucket S3 criado
 - [ ] Tabela DynamoDB criada
 - [ ] Tópico SNS criado
@@ -2339,6 +2361,7 @@ serverless invoke -f dataProcessor --stage local --path tests/test-event.json
 - [ ] Triggers S3 → Lambda funcionando
 
 **Testes:**
+
 - [ ] Upload de CSV dispara Lambda automaticamente
 - [ ] Dados são processados e salvos no DynamoDB
 - [ ] Notificações SNS são enviadas
@@ -2346,6 +2369,7 @@ serverless invoke -f dataProcessor --stage local --path tests/test-event.json
 - [ ] Script de teste automatizado executa sem erros
 
 **Documentação:**
+
 - [ ] README.md completo
 - [ ] Comentários no código
 - [ ] Diagrama de arquitetura
@@ -2357,6 +2381,7 @@ serverless invoke -f dataProcessor --stage local --path tests/test-event.json
 ## **Comandos Úteis**
 
 ### Deploy e Remoção
+
 ```bash
 # Deploy completo
 npm run deploy
@@ -2373,6 +2398,7 @@ serverless remove --stage local
 ```
 
 ### Testes e Debugging
+
 ```bash
 # Executar teste automatizado
 npm test
@@ -2391,6 +2417,7 @@ npm run info
 ```
 
 ### Docker/LocalStack
+
 ```bash
 # Iniciar LocalStack
 npm run docker:up
@@ -2403,6 +2430,7 @@ npm run docker:logs
 ```
 
 ### AWS CLI (LocalStack)
+
 ```bash
 # S3
 aws --endpoint-url=http://localhost:4566 s3 ls
@@ -2448,14 +2476,14 @@ Este roteiro demonstrou a implementação completa de uma arquitetura serverless
 
 ## **Referências**
 
-<sup>[1]</sup> ROBERTS, Mike. **Serverless Architectures**. Martin Fowler, 2018. Disponível em: https://martinfowler.com/articles/serverless.html
+[^1]: ROBERTS, Mike. **Serverless Architectures**. Martin Fowler, 2018. Disponível em: <https://martinfowler.com/articles/serverless.html>
 
-<sup>[2]</sup> BALDINI, Ioana et al. **Serverless Computing: Current Trends and Open Problems**. Research Advances in Cloud Computing, Singapore: Springer, 2017.
+[^2]: BALDINI, Ioana et al. **Serverless Computing: Current Trends and Open Problems**. Research Advances in Cloud Computing, Singapore: Springer, 2017.
 
-<sup>[3]</sup> **LocalStack Documentation**. Disponível em: https://docs.localstack.cloud/
+[^3]: **LocalStack Documentation**. Disponível em: <https://docs.localstack.cloud/>
 
-**AWS Lambda Developer Guide**. Amazon Web Services. Disponível em: https://docs.aws.amazon.com/lambda/
+**AWS Lambda Developer Guide**. Amazon Web Services. Disponível em: <https://docs.aws.amazon.com/lambda/>
 
-**Serverless Framework Documentation**. Disponível em: https://www.serverless.com/framework/docs
+**Serverless Framework Documentation**. Disponível em: <https://www.serverless.com/framework/docs>
 
 **KLEPPMANN, Martin.** Designing Data-Intensive Applications. O'Reilly Media, 2017.
